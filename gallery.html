@@ -21,7 +21,7 @@
         .cover-overlay h1 { font-size: 32px; font-weight: 700; margin-bottom: 6px; }
         .cover-overlay p { font-size: 15px; opacity: 0.9; }
 
-        /* Thanh công cụ Khách Hàng (Đã fix lỗi tràn, hỗ trợ cuộn ngang mượt mà trên mobile) */
+        /* Thanh công cụ Khách Hàng */
         .client-action-bar { background: white; border-bottom: 1px solid #eee; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.04); position: sticky; top: 0; z-index: 100; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
         .client-action-bar::-webkit-scrollbar { display: none; }
         
@@ -53,7 +53,7 @@
         @media (max-width: 768px) { .photo-info { opacity: 1; padding: 20px 8px 8px; background: linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 100%); } }
         .photo-title { color: white; font-size: 11px; font-family: monospace; }
 
-        /* THANH NỔI TẢI VỀ */
+        /* THANH NỔI PHÍA DƯỚI CHUẨN GOOGLE PHOTOS */
         .mobile-bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px 25px; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); z-index: 1000; display: flex; justify-content: space-between; align-items: center; transform: translateY(120%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-top-left-radius: 20px; border-top-right-radius: 20px; }
         .mobile-bottom-bar.active { transform: translateY(0); }
         .mbb-count { font-size: 15px; font-weight: bold; color: #3b82f6; display: flex; align-items: center; gap: 8px; }
@@ -73,7 +73,7 @@
         .share-url { font-size: 13px; color: #4b5563; width: 70%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .btn-copy-link { background: #d1fae5; color: #10b981; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px; }
 
-        /* LIGHTBOX IOS PHOTOS CHUẨN XÁC KHÔNG LỆCH KHUNG */
+        /* LIGHTBOX IOS PHOTOS STYLE */
         #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 3000; flex-direction: column; justify-content: space-between; touch-action: none; }
         .lb-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; color: #ccc; font-size: 14px; z-index: 10; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); }
         .lb-header-left { display: flex; align-items: center; gap: 15px; }
@@ -119,11 +119,12 @@
 
     <div class="gallery-grid" id="gallery-container"></div>
 
+    <!-- THANH NỔI GOOGLE PHOTOS STYLE: LƯU NHIỀU ẢNH TRỰC TIẾP -->
     <div class="mobile-bottom-bar" id="mobile-bar">
         <div class="mbb-count"><i class="fa-solid fa-circle-check"></i> <span>Đã chọn: <span id="dl-selected-count">0</span> ảnh</span></div>
         <div class="mbb-actions">
             <button class="btn-mbb-deselect" onclick="deselectAllDownload()">Bỏ chọn</button>
-            <button class="btn-mbb-save" onclick="downloadSelectedFiles()">Tải ảnh gốc</button>
+            <button class="btn-mbb-save" onclick="downloadSelectedPhotosGooglePhotosStyle()">Lưu ảnh</button>
         </div>
     </div>
 
@@ -150,8 +151,8 @@
         <div class="modal-box">
             <div class="modal-header"><h3>Hướng dẫn tải xuống</h3><button class="btn-close" onclick="closeModal('modal-download-guide')"><i class="fa-solid fa-xmark"></i></button></div>
             <p style="font-size:14px; color:#4b5563; line-height:1.6; margin-bottom:15px;">
-                - <strong>Tải từng ảnh:</strong> Bấm vào ảnh bất kỳ để xem lớn và zoom nét căng, sau đó bấm nút <strong>"Tải ảnh"</strong>.<br>
-                - <strong>Tải nhiều ảnh:</strong> Nhấn giữ ngón tay ngoài màn hình chính trong 0.5 giây để chọn nhanh hàng loạt.
+                - <strong>Lưu từng ảnh:</strong> Bấm vào ảnh bất kỳ để xem lớn, sau đó bấm nút <strong>"Tải ảnh"</strong>.<br>
+                - <strong>Lưu nhiều ảnh:</strong> Nhấn giữ ngón tay ngoài màn hình chính trong 0.5 giây để chọn nhiều ảnh, sau đó bấm nút <strong>"Lưu ảnh"</strong> ở thanh phía dưới để hệ thống tự động tải hàng loạt về máy.
             </p>
             <button class="btn-copy-link" style="width:100%; padding:12px; background:#3b82f6; color:white; font-size:15px;" onclick="closeModal('modal-download-guide')">Đã hiểu</button>
         </div>
@@ -277,17 +278,20 @@
 
         function downloadSingleFile(idx) {
             var file = globalFiles[idx];
-            alert("Đang tải ảnh gốc: " + file.name);
+            alert("Đang lưu ảnh: " + file.name);
             forceDownload(file.downloadUrl, file.name);
         }
 
-        function downloadSelectedFiles() {
+        // TÍNH NĂNG LƯU NHIỀU ẢNH HỆT NHƯ GOOGLE PHOTOS (TỰ ĐỘNG KÍCH HOẠT LƯU LOẠT HÀNG LOẠT)
+        function downloadSelectedPhotosGooglePhotosStyle() {
             if (downloadPhotos.length === 0) return;
-            alert("Đang tải xuống " + downloadPhotos.length + " ảnh gốc chất lượng cao...");
+            alert("Đang bắt đầu lưu " + downloadPhotos.length + " ảnh về thiết bị...");
+            
             downloadPhotos.forEach(function(idx, i) {
                 setTimeout(function() {
-                    forceDownload(globalFiles[idx].downloadUrl, globalFiles[idx].name);
-                }, i * 800);
+                    var file = globalFiles[idx];
+                    forceDownload(file.downloadUrl, file.name);
+                }, i * 500); // Khoảng cách nửa giây mỗi ảnh giúp trình duyệt không bị nghẽn
             });
             deselectAllDownload();
         }
