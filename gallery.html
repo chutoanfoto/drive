@@ -9,16 +9,19 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: #f8f9fa; color: #333; overscroll-behavior-y: none; }
 
+        /* Loader */
         #loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 5000; }
         .spinner { width: 45px; height: 45px; border: 4px solid #eee; border-top-color: #ef4444; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 15px; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        /* Cover */
         .cover-container { position: relative; width: 100%; height: 50vh; min-height: 350px; background: #222; overflow: hidden; }
         .cover-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.85; }
         .cover-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%); padding: 40px 30px 25px; color: white; }
         .cover-overlay h1 { font-size: 32px; font-weight: 700; margin-bottom: 6px; }
         .cover-overlay p { font-size: 15px; opacity: 0.9; }
 
+        /* Admin Toolbar Đầy Đủ 100% */
         .admin-action-bar { position: sticky; top: 0; background: white; z-index: 100; border-bottom: 1px solid #eee; padding: 12px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.04); overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
         .admin-action-bar::-webkit-scrollbar { display: none; }
         @media (max-width: 768px) { .admin-action-bar { padding: 12px 15px; } }
@@ -36,6 +39,7 @@
         .btn-submit-likes { background: #ccc; color: white; border: none; padding: 8px 20px; border-radius: 20px; font-weight: 600; font-size: 13px; cursor: not-allowed; transition: 0.2s; margin-left: 10px; }
         .btn-submit-likes.ready { background: #ef4444; cursor: pointer; }
 
+        /* LƯỚI ẢNH & GOOGLE PHOTOS SELECTION */
         .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; padding: 25px 30px 120px; max-width: 1500px; margin: 0 auto; user-select: none; }
         @media (max-width: 768px) { .gallery-grid { grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 10px 4px 100px; } }
         
@@ -46,14 +50,17 @@
         .photo-card.dl-selected { border-color: #3b82f6; transform: scale(0.95); border-radius: 8px; }
         .check-icon { display: none; position: absolute; top: 10px; left: 10px; color: white; background: #3b82f6; border-radius: 50%; padding: 3px 4px; font-size: 12px; z-index: 10; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .photo-card.dl-selected .check-icon { display: block; }
+        @media (max-width: 768px) { .check-icon { top: 5px; left: 5px; font-size: 10px; padding: 2px 3px; } }
 
         .btn-heart-grid { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.4); width: 32px; height: 32px; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; z-index: 10; }
+        @media (max-width: 768px) { .btn-heart-grid { top: 5px; right: 5px; width: 26px; height: 26px; font-size: 12px; } }
         .btn-heart-grid.liked { background: white; color: #ef4444; border-color: white; transform: scale(1.1); }
         
         .photo-info { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%); padding: 15px 10px 8px; opacity: 0; transition: 0.3s; pointer-events: none; }
         @media (max-width: 768px) { .photo-info { opacity: 1; padding: 20px 5px 5px; background: linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 100%); } }
         .photo-title { color: white; font-size: 11px; font-family: monospace; }
 
+        /* THANH NỔI TẢI VỀ */
         .mobile-bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px 20px; box-shadow: 0 -4px 20px rgba(0,0,0,0.1); z-index: 1000; display: flex; justify-content: space-between; align-items: center; transform: translateY(120%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-top-left-radius: 20px; border-top-right-radius: 20px; }
         .mobile-bottom-bar.active { transform: translateY(0); }
         .mbb-count { font-size: 15px; font-weight: bold; color: #3b82f6; display: flex; align-items: center; gap: 8px; }
@@ -61,6 +68,7 @@
         .btn-mbb-deselect { background: #f3f4f6; color: #4b5563; border: none; padding: 10px 18px; border-radius: 20px; font-weight: 600; font-size: 14px; cursor: pointer; }
         .btn-mbb-save { background: #3b82f6; color: white; border: none; padding: 10px 25px; border-radius: 20px; font-weight: 600; font-size: 14px; cursor: pointer; }
 
+        /* MODALS ĐẦY ĐỦ CHI TIẾT */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 4000; justify-content: center; align-items: center; }
         .modal.active { display: flex; }
         .modal-box { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 600px; position: relative; max-height: 90vh; overflow-y: auto; }
@@ -89,7 +97,7 @@
         .share-url { font-size: 13px; color: #4b5563; width: 75%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .btn-copy-link { background: #d1fae5; color: #10b981; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px; }
 
-        /* LIGHTBOX */
+        /* LIGHTBOX HỖ TRỢ ZOOM CỰC KỲ RÕ NÉT */
         #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f0f0f; z-index: 3000; flex-direction: column; justify-content: space-between; }
         .lb-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; color: #ccc; font-size: 14px; }
         .lb-header-left { display: flex; align-items: center; gap: 15px; }
@@ -99,9 +107,9 @@
         .lb-actions { display: flex; gap: 20px; }
         .lb-btn { background: none; border: none; color: #ccc; font-size: 22px; cursor: pointer; }
         .lb-btn-like.liked { color: #ef4444; }
-        .lb-content { flex: 1; display: flex; justify-content: center; align-items: center; position: relative; }
-        .lb-img { max-width: 100%; max-height: 90vh; object-fit: contain; }
-        .lb-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.1); border: none; color: white; width: 50px; height: 50px; border-radius: 50%; font-size: 20px; cursor: pointer; }
+        .lb-content { flex: 1; display: flex; justify-content: center; align-items: center; position: relative; overflow: auto; }
+        .lb-img { max-width: 100%; max-height: 90vh; object-fit: contain; transition: transform 0.2s ease; cursor: zoom-in; }
+        .lb-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.1); border: none; color: white; width: 50px; height: 50px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 10; }
         .lb-prev { left: 10px; } .lb-next { right: 10px; }
     </style>
 </head>
@@ -109,7 +117,7 @@
 
     <div id="loading-screen">
         <div class="spinner"></div>
-        <p style="color: #666; font-size: 14px;" id="loading-text">Đang tải album tốc độ cao...</p>
+        <p style="color: #666; font-size: 14px;" id="loading-text">Đang đồng bộ ảnh nét cao từ Drive...</p>
     </div>
 
     <div class="cover-container" id="cover-block">
@@ -120,6 +128,7 @@
         </div>
     </div>
 
+    <!-- THANH CÔNG CỤ ADMIN -->
     <div class="admin-action-bar">
         <div class="stat-cluster">
             <div class="badge-green"><i class="fa-regular fa-image"></i> <span id="total-photos">0</span></div>
@@ -228,9 +237,9 @@
                 <button class="lb-btn" onclick="closeLightbox()"><i class="fa-solid fa-xmark"></i></button>
             </div>
         </div>
-        <div class="lb-content">
+        <div class="lb-content" id="lb-content-box">
             <button class="lb-nav lb-prev" onclick="changeLightbox(-1)"><i class="fa-solid fa-chevron-left"></i></button>
-            <img src="" id="lb-img" class="lb-img">
+            <img src="" id="lb-img" class="lb-img" onclick="toggleZoom(this)">
             <button class="lb-nav lb-next" onclick="changeLightbox(1)"><i class="fa-solid fa-chevron-right"></i></button>
         </div>
     </div>
@@ -243,7 +252,10 @@
         var downloadPhotos = [];   
         var currentLightBoxIndex = 0;
         var isSelectionMode = false;
-        var isDragging = false, touchTimer = null, lastTouchedIdx = null;
+        
+        var isDragging = false;
+        var touchTimer = null;
+        var startX = 0, startY = 0;
 
         window.onload = function() {
             var urlParams = new URLSearchParams(window.location.search);
@@ -294,7 +306,7 @@
 
                 card.innerHTML = 
                     '<i class="fa-solid fa-check check-icon"></i>' +
-                    '<img src="' + file.previewUrl + '" alt="' + file.name + '" loading="lazy">' +
+                    '<img src="' + file.viewUrl + '" alt="' + file.name + '" loading="lazy">' +
                     '<button class="' + btnClass + '" id="gh-' + index + '" onclick="toggleHeart(event, \'' + file.name + '\', ' + index + ')"><i class="' + heartClass + '"></i></button>' +
                     '<div class="photo-info"><span class="photo-title">' + file.name + '</span></div>';
                 
@@ -306,7 +318,7 @@
             setupTouchEvents();
         }
 
-        // HÀM TẢI FILE DÙNG BLOB ĐỂ CHỐNG CHẶN TRÊN MESSENGER & TỰ LƯU VỀ MÁY
+        // HÀM TẢI FILE GỐC CHỐNG CHẶN TRÊN MESSENGER VÀ LƯU THẲNG VỀ MÁY
         function forceDownload(url, filename) {
             fetch(url)
             .then(response => response.blob())
@@ -320,7 +332,6 @@
                 document.body.removeChild(a);
                 window.URL.revokeObjectURL(blobUrl);
             }).catch(() => {
-                // Fallback an toàn nếu trình duyệt chặn blob
                 window.open(url, '_blank');
             });
         }
@@ -342,35 +353,33 @@
             deselectAllDownload();
         }
 
-        // CHỌN ẢNH TẢI VỀ MƯỢT MÀ TRÊN MOBILE
+        // CẢI TIẾN ĐỘ TRỄ CẢM ỨNG (CHỐNG NHẠY QUÁ KHI CUỘN XEM ẢNH)
         function setupTouchEvents() {
             var gallery = document.getElementById('gallery-container');
+            
             gallery.addEventListener('touchstart', function(e) {
                 var card = e.target.closest('.photo-card');
                 if (!card) return;
+                var touch = e.touches[0];
+                startX = touch.clientX;
+                startY = touch.clientY;
+                
+                // Tăng thời gian giữ lên 500ms (0.5s) và yêu cầu giữ tĩnh tay để không nhầm với hành vi cuộn trang
                 touchTimer = setTimeout(function() {
                     isDragging = true;
                     if(navigator.vibrate) navigator.vibrate(50);
                     var idx = parseInt(card.getAttribute('data-idx'));
                     toggleDownloadSelection(idx);
-                    lastTouchedIdx = idx;
-                }, 400); 
-            }, {passive: false});
+                }, 500); 
+            }, {passive: true});
 
             gallery.addEventListener('touchmove', function(e) {
-                if (!isDragging) { clearTimeout(touchTimer); return; }
-                e.preventDefault(); 
                 var touch = e.touches[0];
-                var card = document.elementFromPoint(touch.clientX, touch.clientY)?.closest('.photo-card');
-                if (card) {
-                    var idx = parseInt(card.getAttribute('data-idx'));
-                    if (idx !== lastTouchedIdx) {
-                        toggleDownloadSelection(idx);
-                        lastTouchedIdx = idx;
-                        if(navigator.vibrate) navigator.vibrate(20);
-                    }
+                // Nếu ngón tay di chuyển quá 10px thì coi như khách đang vuốt cuộn màn hình -> Hủy ngay lệnh giữ chọn
+                if (Math.abs(touch.clientX - startX) > 10 || Math.abs(touch.clientY - startY) > 10) {
+                    clearTimeout(touchTimer);
                 }
-            }, {passive: false});
+            }, {passive: true});
 
             gallery.addEventListener('touchend', function(e) {
                 clearTimeout(touchTimer);
@@ -448,15 +457,29 @@
 
         function setCover() { alert("Đã đặt " + globalFiles[currentLightBoxIndex].name + " làm ảnh bìa!"); }
 
+        // LIGHTBOX & ZOOM ẢNH NÉT CĂNG
         function openLightbox(idx) {
             currentLightBoxIndex = idx;
             var file = globalFiles[idx];
-            document.getElementById('lb-img').src = file.viewUrl; // Nét căng khi xem lớn
+            var img = document.getElementById('lb-img');
+            img.style.transform = "scale(1)"; // Reset zoom
+            img.src = file.viewUrl; // Ảnh nét cao độ phân giải gốc
             document.getElementById('lb-counter').innerText = (idx + 1) + " / " + globalFiles.length;
 
             updateLbHeartUI();
             document.getElementById('lightbox').style.display = "flex";
         }
+
+        function toggleZoom(img) {
+            if (img.style.transform === "scale(2.5)") {
+                img.style.transform = "scale(1)";
+                img.style.cursor = "zoom-in";
+            } else {
+                img.style.transform = "scale(2.5)";
+                img.style.cursor = "zoom-out";
+            }
+        }
+
         function closeLightbox() { document.getElementById('lightbox').style.display = "none"; }
         function changeLightbox(dir) {
             currentLightBoxIndex += dir;
