@@ -3,34 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bảng điều khiển - ChuToanFoto Dashboard</title>
+    <title>Bảng điều khiển Quản Trị - ChuToanFoto</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #f4f6f8; color: #1f2937; }
 
+        /* Header */
         header { background: white; border-bottom: 1px solid #e5e7eb; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
         .logo-area { display: flex; align-items: center; gap: 20px; }
         .logo-text { font-size: 20px; font-weight: 700; color: #111; }
-        .btn-create-top { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .btn-create-top { background: #ef4444; color: white; border: none; padding: 8px 18px; border-radius: 20px; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
         .btn-create-top:hover { background: #dc2626; }
-        .header-right { display: flex; align-items: center; gap: 20px; color: #4b5563; font-size: 15px; }
+        .header-right { display: flex; align-items: center; gap: 20px; color: #4b5563; font-size: 18px; }
 
-        .sub-bar { background: white; padding: 12px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e5e7eb; }
+        /* Sub-bar */
+        .sub-bar { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e5e7eb; }
         .sub-bar-left { display: flex; gap: 25px; font-size: 14px; font-weight: 500; color: #6b7280; }
-        .sub-bar-left span.active { color: #ef4444; font-weight: 600; border-bottom: 2px solid #ef4444; padding-bottom: 10px; margin-bottom: -12px; }
-        .search-box { position: relative; width: 280px; }
-        .search-box input { width: 100%; padding: 8px 12px 8px 35px; border: 1px solid #d1d5db; border-radius: 20px; outline: none; font-size: 13px; }
-        .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 14px; }
+        .sub-bar-left span.active { color: #ef4444; font-weight: 600; border-bottom: 2px solid #ef4444; padding-bottom: 15px; margin-bottom: -15px; }
+        .search-box { position: relative; width: 300px; }
+        .search-box input { width: 100%; padding: 9px 12px 9px 38px; border: 1px solid #d1d5db; border-radius: 20px; outline: none; font-size: 13px; }
+        .search-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 14px; }
 
+        /* Main Container */
         .main-container { max-width: 1400px; margin: 30px auto; padding: 0 30px; }
         .album-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
         
+        /* Create Card */
         .create-card { border: 2px dashed #d1d5db; border-radius: 12px; background: white; display: flex; flex-direction: column; justify-content: center; align-items: center; aspect-ratio: 16/10; cursor: pointer; transition: 0.2s; }
         .create-card:hover { border-color: #ef4444; background: #fff5f5; }
         .create-card i { font-size: 28px; color: #ef4444; margin-bottom: 10px; }
         .create-card span { font-weight: 600; color: #374151; font-size: 14px; }
 
+        /* Album Item Card */
         .album-item-card { background: white; border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: 0.2s; display: flex; flex-direction: column; }
         .album-item-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
         .aic-thumb { width: 100%; height: 160px; background: #e5e7eb; position: relative; }
@@ -42,6 +47,7 @@
         .aic-link { color: #3b82f6; text-decoration: none; font-weight: 500; }
         .aic-link:hover { text-decoration: underline; }
 
+        /* Modal Tạo Album */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; }
         .modal.active { display: flex; }
         .modal-box { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
@@ -54,6 +60,9 @@
         .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 30px; }
         .btn-cancel { background: #f3f4f6; color: #4b5563; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
         .btn-submit { background: #ef4444; color: white; border: none; padding: 10px 25px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .btn-submit:hover { background: #dc2626; }
+        
+        #loading-dash { text-align: center; grid-column: 1 / -1; padding: 40px; color: #6b7280; font-size: 15px; }
     </style>
 </head>
 <body>
@@ -62,8 +71,8 @@
         <div class="logo-area"><span class="logo-text">ChuToanFoto</span></div>
         <div class="header-right">
             <button class="btn-create-top" onclick="openModal('create-modal')"><i class="fa-solid fa-plus"></i> Tạo album</button>
-            <i class="fa-regular fa-bell"></i>
-            <i class="fa-solid fa-user-circle" style="font-size: 22px;"></i>
+            <i class="fa-regular fa-bell" style="cursor: pointer;"></i>
+            <i class="fa-solid fa-user-circle" style="cursor: pointer;"></i>
         </div>
     </header>
 
@@ -73,7 +82,7 @@
         </div>
         <div class="search-box">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" placeholder="Tìm kiếm album..." id="search-input" onkeyup="searchAlbums()">
+            <input type="text" placeholder="Tìm kiếm tên album hoặc khách hàng..." id="search-input" onkeyup="searchAlbums()">
         </div>
     </div>
 
@@ -83,6 +92,7 @@
                 <i class="fa-solid fa-plus"></i>
                 <span>Tạo album</span>
             </div>
+            <div id="loading-dash">Đang tải danh sách album từ Google Sheets...</div>
         </div>
     </div>
 
@@ -94,12 +104,24 @@
                 <button class="btn-close" onclick="closeModal('create-modal')" style="background:none;border:none;font-size:18px;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <form id="create-album-form" onsubmit="submitAlbum(event)">
-                <div class="form-group"><label>Link Google Drive</label><input type="text" class="form-control" id="f-drive" required></div>
-                <div class="form-group"><label>Tên Album</label><input type="text" class="form-control" id="f-album" required></div>
-                <div class="form-group"><label>Tên khách hàng</label><input type="text" class="form-control" id="f-client" required></div>
-                <div class="form-group"><label>Slug đường dẫn</label><input type="text" class="form-control" id="f-slug" required></div>
+                <div class="form-group">
+                    <label>Liên kết thư mục Google Drive</label>
+                    <input type="text" class="form-control" id="f-drive" placeholder="https://drive.google.com/drive/folders/..." required>
+                </div>
+                <div class="form-group">
+                    <label>Tên Album</label>
+                    <input type="text" class="form-control" id="f-album" placeholder="VD: Lễ Vu Quy Minh Tuyết" required>
+                </div>
+                <div class="form-group">
+                    <label>Tên khách hàng</label>
+                    <input type="text" class="form-control" id="f-client" placeholder="VD: Minh Tuyết" required>
+                </div>
+                <div class="form-group">
+                    <label>Tên miền phụ (Slug) trên URL</label>
+                    <input type="text" class="form-control" id="f-slug" placeholder="psc-minh-tuyet (Để trống sẽ tự sinh)">
+                </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-cancel" onclick="closeModal('create-modal')">Hủy</button>
+                    <button type="button" class="btn-cancel" onclick="closeModal('create-modal')">Hủy bỏ</button>
                     <button type="submit" class="btn-submit" id="btn-submit-album">Tạo Album</button>
                 </div>
             </form>
@@ -108,14 +130,21 @@
 
     <script>
         var API_URL = "https://script.google.com/macros/s/AKfycbxmN--RKvLtxNIxzjf1wHDTVuDNxDvzrBK9O8kIXjRJCnN6sh-wKTEiX2PsJuhud93b/exec";
+        var allAlbums = [];
 
         window.onload = function() {
             fetch(API_URL)
             .then(res => res.json())
             .then(data => {
                 if (data.status === "success") {
-                    renderDashboard(data.albums);
+                    allAlbums = data.albums;
+                    renderDashboard(allAlbums);
+                } else {
+                    document.getElementById('loading-dash').innerText = "Không thể tải danh sách album: " + data.message;
                 }
+            })
+            .catch(err => {
+                document.getElementById('loading-dash').innerText = "Lỗi kết nối máy chủ Google: " + err;
             });
         };
 
@@ -123,22 +152,21 @@
             document.getElementById('total-albums-count').innerText = albums.length;
             var grid = document.getElementById('dashboard-grid');
             
-            // Giữ lại nút Tạo album đầu tiên
             var html = '<div class="create-card" onclick="openModal(\'create-modal\')"><i class="fa-solid fa-plus"></i><span>Tạo album</span></div>';
 
             albums.forEach(alb => {
                 html += `
                     <div class="album-item-card">
                         <div class="aic-thumb">
-                            <img src="${alb.thumbnail || 'https://via.placeholder.com/300'}" alt="Thumb">
+                            <img src="${alb.thumbnail || 'https://images.unsplash.com/photo-1519741497674-611481863552?w=500'}" alt="Thumb" loading="lazy">
                         </div>
                         <div class="aic-body">
                             <div>
                                 <div class="aic-title">${alb.albumName}</div>
-                                <div class="aic-client">Khách: ${alb.clientName}</div>
+                                <div class="aic-client">Khách hàng: ${alb.clientName}</div>
                             </div>
                             <div class="aic-footer">
-                                <span>${new Date(alb.createdAt).toLocaleDateString()}</span>
+                                <span>${new Date(alb.createdAt).toLocaleDateString('vi-VN')}</span>
                                 <a href="gallery.html?id=${alb.slug}" class="aic-link" target="_blank">Mở album <i class="fa-solid fa-arrow-right"></i></a>
                             </div>
                         </div>
@@ -146,6 +174,15 @@
                 `;
             });
             grid.innerHTML = html;
+        }
+
+        function searchAlbums() {
+            var keyword = document.getElementById('search-input').value.toLowerCase();
+            var filtered = allAlbums.filter(a => 
+                a.albumName.toLowerCase().includes(keyword) || 
+                a.clientName.toLowerCase().includes(keyword)
+            );
+            renderDashboard(filtered);
         }
 
         function openModal(id) { document.getElementById(id).classList.add('active'); }
@@ -175,6 +212,10 @@
             }).then(() => {
                 alert("Tạo album thành công!");
                 location.reload();
+            }).catch(err => {
+                alert("Lỗi khi tạo album: " + err);
+                btn.innerText = "Tạo Album";
+                btn.disabled = false;
             });
         }
     </script>
