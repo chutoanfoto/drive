@@ -1,187 +1,490 @@
-<script>
-    var API_URL = "https://script.google.com/macros/s/AKfycbxmN--RKvLtxNIxzjf1wHDTVuDNxDvzrBK9O8kIXjRJCnN6sh-wKTEiX2PsJuhud93b/exec";
-    
-    var globalFiles = [];
-    var likedPhotos = [];      
-    var downloadPhotos = [];   
-    var currentLightBoxIndex = 0;
-    var isSelectionMode = false;
-    var isDragging = false, touchTimer = null, lastTouchedIdx = null;
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Album Khách Hàng - ChuToanFoto</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #f8f9fa; color: #333; overscroll-behavior-y: none; }
 
-    window.onload = function() {
-        var urlParams = new URLSearchParams(window.location.search);
-        var albumId = urlParams.get('id');
-        if (!albumId) { document.getElementById('loading-text').innerText = "Thiếu ID Album!"; return; }
-        document.getElementById('link-1').innerText = window.location.href;
+        /* Loader */
+        #loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 5000; }
+        .spinner { width: 45px; height: 45px; border: 4px solid #eee; border-top-color: #ef4444; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 15px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        fetch(API_URL + "?id=" + encodeURIComponent(albumId))
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === "success") {
-                globalFiles = data.files;
-                renderAlbum(data);
-            } else {
-                document.getElementById('loading-text').innerText = "Lỗi: " + data.message;
+        /* Cover Banner */
+        .cover-container { position: relative; width: 100%; height: 50vh; min-height: 350px; background: #222; overflow: hidden; }
+        .cover-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.85; }
+        .cover-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%); padding: 40px 30px 25px; color: white; }
+        .cover-overlay h1 { font-size: 32px; font-weight: 700; margin-bottom: 6px; }
+        .cover-overlay p { font-size: 15px; opacity: 0.9; }
+
+        /* Admin Toolbar Đầy Đủ Tất Cả Các Nút */
+        .admin-action-bar { position: sticky; top: 0; background: white; z-index: 100; border-bottom: 1px solid #eee; padding: 12px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.04); overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+        .admin-action-bar::-webkit-scrollbar { display: none; }
+        @media (max-width: 768px) { .admin-action-bar { padding: 12px 15px; } }
+        
+        .stat-cluster { display: flex; align-items: center; gap: 20px; font-size: 14px; font-weight: 600; color: #444; }
+        .badge-green { background: #d1fae5; color: #10b981; padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 6px; }
+        .stat-item { display: flex; align-items: center; gap: 6px; }
+        
+        .tools-cluster { display: flex; align-items: center; gap: 10px; }
+        .tb-btn { background: none; border: none; font-size: 14px; font-weight: 500; color: #444; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: 0.2s; padding: 6px 10px; border-radius: 6px; }
+        .tb-btn:hover { background: #f1f3f5; }
+        .tb-btn.active-green { background: #d1fae5; color: #10b981; border-radius: 20px; padding: 6px 15px; }
+        .tb-btn.highlight-red { color: #dc2626; }
+        .tb-btn.disabled { color: #aaa; cursor: not-allowed; }
+        
+        .btn-submit-likes { background: #ccc; color: white; border: none; padding: 8px 20px; border-radius: 20px; font-weight: 600; font-size: 13px; cursor: not-allowed; transition: 0.2s; margin-left: 10px; }
+        .btn-submit-likes.ready { background: #ef4444; cursor: pointer; }
+
+        /* LƯỚI ẢNH & HIỆU ỨNG CHỌN TẢI VỀ (GOOGLE PHOTOS STYLE) */
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; padding: 25px 30px 120px; max-width: 1500px; margin: 0 auto; user-select: none; }
+        @media (max-width: 768px) { .gallery-grid { grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 10px 4px 100px; } }
+        
+        .photo-card { position: relative; border-radius: 6px; overflow: hidden; background: #eaeaea; aspect-ratio: 2/3; box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer; touch-action: pan-y; transition: transform 0.2s, border 0.2s; border: 3px solid transparent; }
+        @media (max-width: 768px) { .photo-card { border-radius: 2px; border-width: 2px; } }
+        .photo-card img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+        
+        .photo-card.dl-selected { border-color: #3b82f6; transform: scale(0.95); border-radius: 8px; }
+        .check-icon { display: none; position: absolute; top: 10px; left: 10px; color: white; background: #3b82f6; border-radius: 50%; padding: 3px 4px; font-size: 12px; z-index: 10; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .photo-card.dl-selected .check-icon { display: block; }
+        @media (max-width: 768px) { .check-icon { top: 5px; left: 5px; font-size: 10px; padding: 2px 3px; } }
+
+        .btn-heart-grid { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.4); width: 32px; height: 32px; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; z-index: 10; }
+        @media (max-width: 768px) { .btn-heart-grid { top: 5px; right: 5px; width: 26px; height: 26px; font-size: 12px; } }
+        .btn-heart-grid.liked { background: white; color: #ef4444; border-color: white; transform: scale(1.1); }
+        
+        .photo-info { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%); padding: 15px 10px 8px; opacity: 0; transition: 0.3s; pointer-events: none; }
+        @media (max-width: 768px) { .photo-info { opacity: 1; padding: 20px 5px 5px; background: linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 100%); } }
+        .photo-title { color: white; font-size: 11px; font-family: monospace; }
+
+        /* THANH CÔNG CỤ TẢI VỀ NỔI TRÊN MOBILE */
+        .mobile-bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px 20px; box-shadow: 0 -4px 20px rgba(0,0,0,0.1); z-index: 1000; display: flex; justify-content: space-between; align-items: center; transform: translateY(120%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-top-left-radius: 20px; border-top-right-radius: 20px; }
+        .mobile-bottom-bar.active { transform: translateY(0); }
+        .mbb-count { font-size: 15px; font-weight: bold; color: #3b82f6; display: flex; align-items: center; gap: 8px; }
+        .mbb-actions { display: flex; gap: 10px; }
+        .btn-mbb-deselect { background: #f3f4f6; color: #4b5563; border: none; padding: 10px 18px; border-radius: 20px; font-weight: 600; font-size: 14px; cursor: pointer; }
+        .btn-mbb-save { background: #3b82f6; color: white; border: none; padding: 10px 25px; border-radius: 20px; font-weight: 600; font-size: 14px; cursor: pointer; }
+
+        /* CÁC MODAL HỆ THỐNG */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 4000; justify-content: center; align-items: center; }
+        .modal.active { display: flex; }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 550px; position: relative; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h3 { color: #1f2937; font-size: 20px; }
+        .btn-close { background: none; border: none; font-size: 20px; cursor: pointer; color: #999; }
+        
+        .sort-list { display: flex; flex-direction: column; gap: 5px; }
+        .sort-item { padding: 15px 20px; border-radius: 8px; cursor: pointer; font-size: 15px; color: #4b5563; display: flex; align-items: center; gap: 12px; background: #f9fafb; transition: 0.2s; }
+        .sort-item:hover { background: #f3f4f6; }
+        .sort-item.selected { background: #d1fae5; color: #10b981; font-weight: 600; }
+        
+        .result-textarea { width: 100%; height: 130px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 13px; margin-bottom: 16px; resize: none; }
+        .btn-copy { background: #10b981; color: white; border: none; padding: 9px 18px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
+
+        /* LIGHTBOX NÉT CĂNG & CÓ NÚT TẢI VỀ */
+        #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f0f0f; z-index: 3000; flex-direction: column; justify-content: space-between; }
+        .lb-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; color: #ccc; font-size: 14px; }
+        .lb-header-left { display: flex; align-items: center; gap: 15px; }
+        .lb-btn-setcover { background: none; border: 1px solid #ccc; color: #ccc; padding: 5px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        .lb-btn-download { background: #3b82f6; color: white; border: none; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; text-decoration: none; }
+        .lb-btn-download:hover { background: #2563eb; }
+        .lb-actions { display: flex; gap: 20px; }
+        .lb-btn { background: none; border: none; color: #ccc; font-size: 22px; cursor: pointer; }
+        .lb-btn-like.liked { color: #ef4444; }
+        .lb-content { flex: 1; display: flex; justify-content: center; align-items: center; position: relative; }
+        .lb-img { max-width: 100%; max-height: 90vh; object-fit: contain; }
+        .lb-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.1); border: none; color: white; width: 50px; height: 50px; border-radius: 50%; font-size: 20px; cursor: pointer; }
+        .lb-prev { left: 10px; } .lb-next { right: 10px; }
+    </style>
+</head>
+<body>
+
+    <div id="loading-screen">
+        <div class="spinner"></div>
+        <p style="color: #666; font-size: 14px;" id="loading-text">Đang kết nối kho ảnh gốc...</p>
+    </div>
+
+    <div class="cover-container" id="cover-block">
+        <img id="cover-photo" class="cover-img" src="" alt="Cover">
+        <div class="cover-overlay">
+            <h1 id="album-title">Tên Album</h1>
+            <p id="client-name">Khách hàng: </p>
+        </div>
+    </div>
+
+    <!-- THANH CÔNG CỤ QUẢN TRỊ ADMIN -->
+    <div class="admin-action-bar">
+        <div class="stat-cluster">
+            <div class="badge-green"><i class="fa-regular fa-image"></i> <span id="total-photos">0</span></div>
+            <div class="stat-item" style="color: #ef4444;"><i class="fa-solid fa-heart"></i> <span id="likes-count">0</span></div>
+        </div>
+
+        <div class="tools-cluster">
+            <button class="tb-btn" onclick="openModal('modal-share')"><i class="fa-solid fa-share-nodes"></i> Chia sẻ</button>
+            <button class="tb-btn" onclick="location.reload()"><i class="fa-solid fa-rotate-right"></i> Tải lại</button>
+            <button class="tb-btn disabled"><i class="fa-solid fa-lock"></i> Khoá</button>
+            <button class="tb-btn disabled"><i class="fa-solid fa-filter"></i> Lọc file</button>
+            <button class="tb-btn disabled"><i class="fa-regular fa-clipboard"></i> Lịch sử</button>
+            
+            <button class="tb-btn active-green" onclick="openModal('modal-sort')"><i class="fa-solid fa-list-ul"></i> Sắp xếp</button>
+            
+            <button class="tb-btn" onclick="openModal('modal-download')"><i class="fa-solid fa-download"></i> Tải xuống</button>
+            <button class="tb-btn highlight-red" onclick="alert('Chỉnh sửa Album')"><i class="fa-solid fa-wrench"></i> Tùy chỉnh</button>
+            
+            <button class="btn-submit-likes" id="btn-submit-list" disabled onclick="openResultModal()">Gửi Danh Sách Đã Chọn</button>
+        </div>
+    </div>
+
+    <div class="gallery-grid" id="gallery-container"></div>
+
+    <!-- THANH NỔI TẢI VỀ TRÊN MOBILE -->
+    <div class="mobile-bottom-bar" id="mobile-bar">
+        <div class="mbb-count">
+            <i class="fa-solid fa-circle-check"></i> 
+            <span>Đã chọn: <span id="dl-selected-count">0</span></span>
+        </div>
+        <div class="mbb-actions">
+            <button class="btn-mbb-deselect" onclick="deselectAllDownload()">Bỏ chọn</button>
+            <button class="btn-mbb-save" onclick="downloadSelectedFiles()">Lưu ảnh gốc</button>
+        </div>
+    </div>
+
+    <!-- MODAL SẮP XẾP -->
+    <div class="modal" id="modal-sort">
+        <div class="modal-box" style="max-width: 400px;">
+            <div class="modal-header"><h3 style="color:#10b981;">Sắp xếp ảnh</h3><button class="btn-close" onclick="closeModal('modal-sort')"><i class="fa-solid fa-xmark"></i></button></div>
+            <div class="sort-list">
+                <div class="sort-item selected" id="sort-az" onclick="applySortLocal('az')"><i class="fa-solid fa-arrow-down-a-z"></i> Tên hình ảnh từ A -> Z</div>
+                <div class="sort-item" id="sort-za" onclick="applySortLocal('za')"><i class="fa-solid fa-arrow-up-z-a"></i> Tên hình ảnh từ Z -> A</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL GỬI DANH SÁCH THẢ TIM -->
+    <div class="modal" id="result-modal">
+        <div class="modal-box">
+            <div class="modal-header"><h3>Hoàn tất chọn ảnh (Thả tim)</h3><button class="btn-close" onclick="closeModal('result-modal')"><i class="fa-solid fa-xmark"></i></button></div>
+            <p style="font-size: 13px; color: #666; margin-bottom: 12px;">Bấm <strong>Sao chép</strong> và gửi danh sách tên file bên dưới cho ChuToanFoto:</p>
+            <textarea class="result-textarea" id="result-list" readonly></textarea>
+            <div style="display:flex; justify-content: flex-end;"><button class="btn-copy" onclick="copyTxt('result-list')"><i class="fa-regular fa-copy"></i> Sao chép</button></div>
+        </div>
+    </div>
+
+    <!-- MODAL SHARE -->
+    <div class="modal" id="modal-share">
+        <div class="modal-box">
+            <div class="modal-header"><h3>Chia sẻ</h3><button class="btn-close" onclick="closeModal('modal-share')"><i class="fa-solid fa-xmark"></i></button></div>
+            <p>Link Album: <strong id="link-1" style="font-size:12px; word-break:break-all;"></strong></p>
+        </div>
+    </div>
+
+    <!-- MODAL DOWNLOAD -->
+    <div class="modal" id="modal-download">
+        <div class="modal-box">
+            <div class="modal-header"><h3>Tải xuống</h3><button class="btn-close" onclick="closeModal('modal-download')"><i class="fa-solid fa-xmark"></i></button></div>
+            <p style="font-size: 13px; color: #666;">Khách hàng có thể nhấn giữ chọn nhiều ảnh ngoài màn hình chính hoặc dùng nút tải trực tiếp khi xem từng ảnh.</p>
+        </div>
+    </div>
+
+    <!-- LIGHTBOX -->
+    <div id="lightbox">
+        <div class="lb-header">
+            <div class="lb-header-left">
+                <div class="lb-counter" id="lb-counter">1 / 100</div>
+                <button class="lb-btn-setcover" onclick="setCover()"><i class="fa-regular fa-star"></i> Đặt làm ảnh bìa</button>
+                <a href="" id="lb-download-btn" class="lb-btn-download" download target="_blank"><i class="fa-solid fa-download"></i> Tải ảnh gốc</a>
+            </div>
+            <div class="lb-actions">
+                <button class="lb-btn lb-btn-like" id="lb-btn-like" onclick="toggleHeartFromLightbox()"><i class="fa-regular fa-heart"></i></button>
+                <button class="lb-btn" onclick="closeLightbox()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
+        <div class="lb-content">
+            <button class="lb-nav lb-prev" onclick="changeLightbox(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+            <img src="" id="lb-img" class="lb-img">
+            <button class="lb-nav lb-next" onclick="changeLightbox(1)"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <script>
+        var API_URL = "https://script.google.com/macros/s/AKfycbxmN--RKvLtxNIxzjf1wHDTVuDNxDvzrBK9O8kIXjRJCnN6sh-wKTEiX2PsJuhud93b/exec";
+        
+        var globalFiles = [];
+        var likedPhotos = [];      
+        var downloadPhotos = [];   
+        var currentLightBoxIndex = 0;
+        var isSelectionMode = false;
+        
+        var isDragging = false;
+        var touchTimer = null;
+        var lastTouchedIdx = null;
+
+        window.onload = function() {
+            var urlParams = new URLSearchParams(window.location.search);
+            var albumId = urlParams.get('id');
+
+            if (!albumId) { document.getElementById('loading-text').innerText = "Thiếu ID Album!"; return; }
+            document.getElementById('link-1').innerText = window.location.href;
+
+            fetch(API_URL + "?id=" + encodeURIComponent(albumId))
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    globalFiles = data.files;
+                    renderAlbum(data);
+                } else {
+                    document.getElementById('loading-text').innerText = "Lỗi: " + data.message;
+                }
+            }).catch(err => {
+                document.getElementById('loading-text').innerText = "Lỗi kết nối: " + err;
+            });
+        };
+
+        function renderAlbum(data) {
+            if(data) {
+                document.getElementById('album-title').innerText = data.album.albumName;
+                document.getElementById('client-name').innerText = "Khách hàng: " + data.album.clientName;
+                document.getElementById('total-photos').innerText = globalFiles.length;
+                if (globalFiles.length > 0) document.getElementById('cover-photo').src = globalFiles[0].viewUrl;
             }
-        }).catch(err => {
-            document.getElementById('loading-text').innerText = "Lỗi kết nối API: " + err;
-        });
-    };
 
-    function renderAlbum(data) {
-        if(data) {
-            document.getElementById('album-title').innerText = data.album.albumName;
-            document.getElementById('client-name').innerText = "Khách hàng: " + data.album.clientName;
-            document.getElementById('total-photos').innerText = globalFiles.length;
-            if (globalFiles.length > 0) {
-                document.getElementById('cover-photo').src = globalFiles[0].viewUrl;
+            var container = document.getElementById('gallery-container');
+            container.innerHTML = "";
+
+            globalFiles.forEach(function(file, index) {
+                var card = document.createElement('div');
+                card.className = "photo-card";
+                card.setAttribute("data-idx", index);
+                
+                var isLiked = likedPhotos.includes(file.name);
+                var isDlSelected = downloadPhotos.includes(index);
+                
+                if (isDlSelected) card.classList.add('dl-selected');
+                
+                var heartClass = isLiked ? "fa-solid fa-heart" : "fa-regular fa-heart";
+                var btnClass = isLiked ? "btn-heart-grid liked" : "btn-heart-grid";
+
+                card.innerHTML = 
+                    '<i class="fa-solid fa-check check-icon"></i>' +
+                    '<img src="' + file.viewUrl + '" alt="' + file.name + '" loading="lazy">' +
+                    '<button class="' + btnClass + '" id="gh-' + index + '" onclick="toggleHeart(event, \'' + file.name + '\', ' + index + ')"><i class="' + heartClass + '"></i></button>' +
+                    '<div class="photo-info"><span class="photo-title">' + file.name + '</span></div>';
+                
+                card.onclick = function() { onCardClick(index); };
+                container.appendChild(card);
+            });
+
+            document.getElementById('loading-screen').style.display = "none";
+            setupTouchEvents();
+        }
+
+        // CƠ CHẾ CHỌN ẢNH TẢI VỀ (NHẤN GIỮ & TRƯỢT GOOGLE PHOTOS)
+        function setupTouchEvents() {
+            var gallery = document.getElementById('gallery-container');
+            gallery.addEventListener('touchstart', function(e) {
+                var card = e.target.closest('.photo-card');
+                if (!card) return;
+                touchTimer = setTimeout(function() {
+                    isDragging = true;
+                    if(navigator.vibrate) navigator.vibrate(50);
+                    var idx = parseInt(card.getAttribute('data-idx'));
+                    toggleDownloadSelection(idx);
+                    lastTouchedIdx = idx;
+                }, 400); 
+            }, {passive: false});
+
+            gallery.addEventListener('touchmove', function(e) {
+                if (!isDragging) { clearTimeout(touchTimer); return; }
+                e.preventDefault(); 
+                var touch = e.touches[0];
+                var element = document.elementFromPoint(touch.clientX, touch.clientY);
+                if (!element) return;
+                var card = element.closest('.photo-card');
+                if (card) {
+                    var idx = parseInt(card.getAttribute('data-idx'));
+                    if (idx !== lastTouchedIdx) {
+                        toggleDownloadSelection(idx);
+                        lastTouchedIdx = idx;
+                        if(navigator.vibrate) navigator.vibrate(20);
+                    }
+                }
+            }, {passive: false});
+
+            gallery.addEventListener('touchend', function(e) {
+                clearTimeout(touchTimer);
+                setTimeout(function() { isDragging = false; }, 50);
+            });
+        }
+
+        function onCardClick(idx) {
+            if (isDragging) return;
+            if (isSelectionMode) {
+                toggleDownloadSelection(idx);
+            } else {
+                openLightbox(idx);
             }
         }
 
-        var container = document.getElementById('gallery-container');
-        container.innerHTML = "";
-
-        globalFiles.forEach((file, index) => {
-            var card = document.createElement('div');
-            card.className = "photo-card";
-            card.setAttribute("data-idx", index);
+        function toggleDownloadSelection(idx) {
+            var card = document.querySelector('.photo-card[data-idx="'+idx+'"]');
+            var pos = downloadPhotos.indexOf(idx);
             
-            if (downloadPhotos.includes(index)) card.classList.add('dl-selected');
-            var isLiked = likedPhotos.includes(file.name);
-            
-            // ĐÃ KHẮC PHỤC: Dùng trực tiếp file.viewUrl vào src để ảnh hiện lên ngay lập tức
-            card.innerHTML = 
-                '<i class="fa-solid fa-check check-icon"></i>' +
-                '<img src="' + file.viewUrl + '" alt="' + file.name + '" loading="lazy">' +
-                '<button class="btn-heart-grid ' + (isLiked?'liked':'') + '" id="gh-' + index + '" onclick="toggleHeart(event, \'' + file.name + '\', ' + index + ')"><i class="' + (isLiked?'fa-solid':'fa-regular') + ' fa-heart"></i></button>' +
-                '<div class="photo-info"><span class="photo-title">' + file.name + '</span></div>';
-            
-            card.onclick = () => { if(!isDragging) openLightbox(index); };
-            container.appendChild(card);
-        });
-        document.getElementById('loading-screen').style.display = "none";
-        setupTouchEvents();
-    }
-
-    function setupTouchEvents() {
-        var gallery = document.getElementById('gallery-container');
-        gallery.ontouchstart = (e) => {
-            var card = e.target.closest('.photo-card');
-            if (!card) return;
-            touchTimer = setTimeout(() => {
-                isDragging = true;
-                if(navigator.vibrate) navigator.vibrate(50);
-                toggleDownloadSelection(parseInt(card.getAttribute('data-idx')));
-            }, 400);
-        };
-        gallery.ontouchmove = (e) => {
-            if (!isDragging) { clearTimeout(touchTimer); return; }
-            e.preventDefault();
-            var touch = e.touches[0];
-            var card = document.elementFromPoint(touch.clientX, touch.clientY)?.closest('.photo-card');
-            if (card) {
-                var idx = parseInt(card.getAttribute('data-idx'));
-                if (idx !== lastTouchedIdx) {
-                    toggleDownloadSelection(idx);
-                    lastTouchedIdx = idx;
-                }
+            if (pos !== -1) {
+                downloadPhotos.splice(pos, 1);
+                card.classList.remove('dl-selected');
+            } else {
+                downloadPhotos.push(idx);
+                card.classList.add('dl-selected');
             }
-        };
-        gallery.ontouchend = () => { clearTimeout(touchTimer); setTimeout(() => isDragging = false, 50); };
-    }
+            
+            var count = downloadPhotos.length;
+            document.getElementById('dl-selected-count').innerText = count;
+            var mobileBar = document.getElementById('mobile-bar');
+            
+            if (count > 0) {
+                isSelectionMode = true;
+                mobileBar.classList.add('active');
+            } else {
+                isSelectionMode = false;
+                mobileBar.classList.remove('active');
+            }
+        }
 
-    function toggleDownloadSelection(idx) {
-        var card = document.querySelector('.photo-card[data-idx="'+idx+'"]');
-        var pos = downloadPhotos.indexOf(idx);
-        if (pos !== -1) { downloadPhotos.splice(pos, 1); card.classList.remove('dl-selected'); }
-        else { downloadPhotos.push(idx); card.classList.add('dl-selected'); }
-        
-        var count = downloadPhotos.length;
-        document.getElementById('dl-selected-count').innerText = count;
-        document.getElementById('mobile-bar').classList.toggle('active', count > 0);
-    }
+        function deselectAllDownload() {
+            downloadPhotos = [];
+            document.querySelectorAll('.photo-card').forEach(function(card) {
+                card.classList.remove('dl-selected');
+            });
+            isSelectionMode = false;
+            document.getElementById('mobile-bar').classList.remove('active');
+        }
 
-    function deselectAllDownload() {
-        downloadPhotos = [];
-        document.querySelectorAll('.photo-card').forEach(c => c.classList.remove('dl-selected'));
-        document.getElementById('mobile-bar').classList.remove('active');
-    }
+        function downloadSelectedFiles() {
+            if (downloadPhotos.length === 0) return;
+            alert("Bắt đầu tải về " + downloadPhotos.length + " ảnh gốc!");
+            
+            downloadPhotos.forEach(function(idx, i) {
+                setTimeout(function() {
+                    var a = document.createElement('a');
+                    a.href = globalFiles[idx].downloadUrl;
+                    a.download = globalFiles[idx].name;
+                    a.target = "_blank";
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                }, i * 600);
+            });
+            deselectAllDownload();
+        }
 
-    function downloadSelectedFiles() {
-        if (downloadPhotos.length === 0) return;
-        alert("Bắt đầu tải về " + downloadPhotos.length + " ảnh gốc chất lượng cao!");
-        downloadPhotos.forEach((idx, i) => {
-            setTimeout(() => {
-                var a = document.createElement('a');
-                a.href = globalFiles[idx].downloadUrl;
-                a.download = globalFiles[idx].name;
-                a.target = "_blank";
-                document.body.appendChild(a); a.click(); document.body.removeChild(a);
-            }, i * 500);
+        // THẢ TIM BÁO CÁO CHO PHOTO
+        function toggleHeart(e, name, idx) {
+            e.stopPropagation();
+            var btn = document.getElementById('gh-' + idx);
+            var pos = likedPhotos.indexOf(name);
+            
+            if (pos !== -1) {
+                likedPhotos.splice(pos, 1);
+                btn.classList.remove('liked'); btn.querySelector('i').className = "fa-regular fa-heart";
+            } else {
+                likedPhotos.push(name);
+                btn.classList.add('liked'); btn.querySelector('i').className = "fa-solid fa-heart";
+            }
+            updateLikesUI();
+        }
+
+        function updateLikesUI() {
+            document.getElementById('likes-count').innerText = likedPhotos.length;
+            var subBtn = document.getElementById('btn-submit-list');
+            if (likedPhotos.length > 0) {
+                subBtn.disabled = false; subBtn.classList.add('ready');
+            } else {
+                subBtn.disabled = true; subBtn.classList.remove('ready');
+            }
+        }
+
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function copyTxt(id) { 
+            var el = document.getElementById(id);
+            if(el.tagName === 'TEXTAREA') { el.select(); navigator.clipboard.writeText(el.value); }
+            else { navigator.clipboard.writeText(el.innerText); }
+            alert("Đã sao chép!"); 
+        }
+
+        function openResultModal() {
+            document.getElementById('result-list').value = likedPhotos.join(', ');
+            openModal('result-modal');
+        }
+
+        function applySortLocal(type) {
+            document.querySelectorAll('.sort-item').forEach(e => e.classList.remove('selected'));
+            document.getElementById('sort-' + type).classList.add('selected');
+            
+            if(type === 'az') {
+                globalFiles.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
+            } else if (type === 'za') {
+                globalFiles.sort((a, b) => b.name.localeCompare(a.name, undefined, {numeric: true}));
+            }
+            
+            renderAlbum(null);
+            closeModal('modal-sort');
+        }
+
+        function setCover() { alert("Đã đặt " + globalFiles[currentLightBoxIndex].name + " làm ảnh bìa!"); }
+
+        // LIGHTBOX
+        function openLightbox(idx) {
+            currentLightBoxIndex = idx;
+            var file = globalFiles[idx];
+            document.getElementById('lb-img').src = file.viewUrl;
+            document.getElementById('lb-counter').innerText = (idx + 1) + " / " + globalFiles.length;
+            
+            var dlBtn = document.getElementById('lb-download-btn');
+            dlBtn.href = file.downloadUrl;
+            dlBtn.download = file.name;
+
+            updateLbHeartUI();
+            document.getElementById('lightbox').style.display = "flex";
+        }
+        function closeLightbox() { document.getElementById('lightbox').style.display = "none"; }
+        function changeLightbox(dir) {
+            currentLightBoxIndex += dir;
+            if(currentLightBoxIndex < 0) currentLightBoxIndex = globalFiles.length - 1;
+            if(currentLightBoxIndex >= globalFiles.length) currentLightBoxIndex = 0;
+            openLightbox(currentLightBoxIndex);
+        }
+        function toggleHeartFromLightbox() { 
+            var name = globalFiles[currentLightBoxIndex].name;
+            var pos = likedPhotos.indexOf(name);
+            if (pos !== -1) likedPhotos.splice(pos, 1); else likedPhotos.push(name);
+            updateLikesUI();
+            updateLbHeartUI();
+            var btn = document.getElementById('gh-' + currentLightBoxIndex);
+            if (btn) {
+                if (pos !== -1) { btn.classList.remove('liked'); btn.querySelector('i').className = "fa-regular fa-heart"; }
+                else { btn.classList.add('liked'); btn.querySelector('i').className = "fa-solid fa-heart"; }
+            }
+        }
+        function updateLbHeartUI() {
+            var btn = document.getElementById('lb-btn-like');
+            if (likedPhotos.includes(globalFiles[currentLightBoxIndex].name)) {
+                btn.classList.add('liked'); btn.querySelector('i').className = "fa-solid fa-heart";
+            } else {
+                btn.classList.remove('liked'); btn.querySelector('i').className = "fa-regular fa-heart";
+            }
+        }
+        document.addEventListener('keydown', function(e) {
+            if (document.getElementById('lightbox').style.display === "flex") {
+                if (e.key === "ArrowLeft") changeLightbox(-1);
+                if (e.key === "ArrowRight") changeLightbox(1);
+                if (e.key === "Escape") closeLightbox();
+            }
         });
-        deselectAllDownload();
-    }
-
-    function toggleHeart(e, name, idx) {
-        e.stopPropagation();
-        var btn = document.getElementById('gh-' + idx);
-        var pos = likedPhotos.indexOf(name);
-        if (pos !== -1) { likedPhotos.splice(pos, 1); btn.classList.remove('liked'); btn.querySelector('i').className = "fa-regular fa-heart"; }
-        else { likedPhotos.push(name); btn.classList.add('liked'); btn.querySelector('i').className = "fa-solid fa-heart"; }
-        document.getElementById('likes-count').innerText = likedPhotos.length;
-        var subBtn = document.getElementById('btn-submit-list');
-        subBtn.disabled = likedPhotos.length === 0;
-        subBtn.classList.toggle('ready', likedPhotos.length > 0);
-    }
-
-    function openModal(id) { document.getElementById(id).classList.add('active'); }
-    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-    function copyTxt(id) { navigator.clipboard.writeText(document.getElementById(id).value || document.getElementById(id).innerText); alert("Đã sao chép!"); }
-
-    function applySortLocal(type) {
-        document.querySelectorAll('.sort-item').forEach(e => e.classList.remove('selected'));
-        document.getElementById('sort-' + type).classList.add('selected');
-        if(type === 'az') globalFiles.sort((a,b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
-        else globalFiles.sort((a,b) => b.name.localeCompare(a.name, undefined, {numeric: true}));
-        renderAlbum(null);
-        closeModal('modal-sort');
-    }
-
-    function setCover() { alert("Đã đặt " + globalFiles[currentLightBoxIndex].name + " làm ảnh bìa!"); }
-
-    function openLightbox(idx) {
-        currentLightBoxIndex = idx;
-        var file = globalFiles[idx];
-        document.getElementById('lb-img').src = file.viewUrl;
-        document.getElementById('lb-counter').innerText = (idx + 1) + " / " + globalFiles.length;
-        
-        var dlBtn = document.getElementById('lb-download-btn');
-        dlBtn.href = file.downloadUrl;
-        dlBtn.download = file.name;
-
-        updateLbHeartUI();
-        document.getElementById('lightbox').style.display = "flex";
-    }
-    function closeLightbox() { document.getElementById('lightbox').style.display = "none"; }
-    function changeLightbox(dir) {
-        currentLightBoxIndex += dir;
-        if(currentLightBoxIndex < 0) currentLightBoxIndex = globalFiles.length - 1;
-        if(currentLightBoxIndex >= globalFiles.length) currentLightBoxIndex = 0;
-        openLightbox(currentLightBoxIndex);
-    }
-    function toggleHeartFromLightbox() {
-        toggleHeart({stopPropagation:()=>{}}, globalFiles[currentLightBoxIndex].name, currentLightBoxIndex);
-        updateLbHeartUI();
-    }
-    function updateLbHeartUI() {
-        var btn = document.getElementById('lb-btn-like');
-        var isLiked = likedPhotos.includes(globalFiles[currentLightBoxIndex].name);
-        btn.classList.toggle('liked', isLiked);
-        btn.querySelector('i').className = isLiked ? "fa-solid fa-heart" : "fa-regular fa-heart";
-    }
-
-    function openResultModal() {
-        document.getElementById('result-list').value = likedPhotos.join(', ');
-        openModal('result-modal');
-    }
-</script>
+    </script>
+</body>
+</html>
