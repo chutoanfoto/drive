@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: #f8f9fa; color: #333; overscroll-behavior-y: none; padding-bottom: 80px; }
+        body { background-color: #f8f9fa; color: #333; overscroll-behavior-y: none; padding-bottom: 90px; }
 
         /* Loader */
         #loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 5000; }
@@ -33,14 +33,14 @@
         .client-btn.primary { background: #10b981; color: white; }
         .client-btn.primary:hover { background: #059669; }
 
-        /* LƯỚI ẢNH */
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; padding: 25px 30px 120px; max-width: 1500px; margin: 0 auto; user-select: none; }
-        @media (max-width: 768px) { .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 10px 8px 100px; } }
+        /* LƯỚI ẢNH ĐỒNG ĐỀU (CHỐNG SỘC SỆCH) */
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; padding: 30px; max-width: 1500px; margin: 0 auto; user-select: none; }
+        @media (max-width: 768px) { .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 12px; } }
         
-        .photo-card { position: relative; border-radius: 8px; overflow: hidden; background: #eaeaea; aspect-ratio: 2/3; box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer; touch-action: pan-y; transition: transform 0.2s, border 0.2s; border: 3px solid transparent; }
+        .photo-card { position: relative; border-radius: 8px; overflow: hidden; background: #e5e7eb; aspect-ratio: 2/3; box-shadow: 0 2px 6px rgba(0,0,0,0.06); cursor: pointer; touch-action: pan-y; transition: transform 0.2s, border-color 0.2s; border: 3px solid transparent; }
         .photo-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
         
-        .photo-card.dl-selected { border-color: #3b82f6; transform: scale(0.96); border-radius: 8px; }
+        .photo-card.dl-selected { border-color: #3b82f6; transform: scale(0.96); }
         .check-icon { display: none; position: absolute; top: 10px; left: 10px; color: white; background: #3b82f6; border-radius: 50%; padding: 4px 6px; font-size: 12px; z-index: 10; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .photo-card.dl-selected .check-icon { display: block; }
 
@@ -48,7 +48,7 @@
         .btn-heart-grid.liked { background: white; color: #ef4444; border-color: white; transform: scale(1.1); }
         
         .photo-info { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%); padding: 15px 10px 8px; opacity: 0; transition: 0.3s; pointer-events: none; }
-        @media (max-width: 768px) { .photo-info { opacity: 1; padding: 20px 8px 8px; background: linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 100%); } }
+        @media (max-width: 768px) { .photo-info { opacity: 1; padding: 20px 8px 8px; background: linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 100%); } }
         .photo-title { color: white; font-size: 11px; font-family: monospace; }
 
         /* THANH NỔI TẢI VỀ */
@@ -71,7 +71,7 @@
         .share-url { font-size: 13px; color: #4b5563; width: 70%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .btn-copy-link { background: #d1fae5; color: #10b981; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px; }
 
-        /* LIGHTBOX CHUẨN IOS PHOTOS (ZOOM MƯỢT & VUỐT QUA LẠI) */
+        /* LIGHTBOX IOS PHOTOS STYLE */
         #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 3000; flex-direction: column; justify-content: space-between; touch-action: none; }
         .lb-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; color: #ccc; font-size: 14px; z-index: 10; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); }
         .lb-header-left { display: flex; align-items: center; gap: 15px; }
@@ -85,7 +85,7 @@
         .lb-img:active { cursor: grabbing; }
         
         .lb-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.15); border: none; color: white; width: 50px; height: 50px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; }
-        @media (max-width: 768px) { .lb-nav { display: none; } } /* Trên mobile ẩn nút mũi tên để ưu tiên vuốt ngang */
+        @media (max-width: 768px) { .lb-nav { display: none; } }
         .lb-prev { left: 15px; } .lb-next { right: 15px; }
     </style>
 </head>
@@ -93,7 +93,7 @@
 
     <div id="loading-screen">
         <div class="spinner"></div>
-        <p style="color: #666; font-size: 14px;" id="loading-text">Đang tải album chất lượng cao...</p>
+        <p style="color: #666; font-size: 14px;" id="loading-text">Đang đồng bộ ảnh gốc chất lượng cao...</p>
     </div>
 
     <div class="cover-container" id="cover-block">
@@ -149,8 +149,8 @@
         <div class="modal-box">
             <div class="modal-header"><h3>Hướng dẫn tải xuống</h3><button class="btn-close" onclick="closeModal('modal-download-guide')"><i class="fa-solid fa-xmark"></i></button></div>
             <p style="font-size:14px; color:#4b5563; line-height:1.6; margin-bottom:15px;">
-                - <strong>Tải từng ảnh:</strong> Bấm vào ảnh bất kỳ để xem lớn, sau đó bấm nút <strong>"Tải ảnh"</strong>.<br>
-                - <strong>Tải nhiều ảnh:</strong> Nhấn giữ ngón tay ngoài màn hình chính để chọn nhanh hàng loạt.
+                - <strong>Tải từng ảnh:</strong> Bấm vào ảnh bất kỳ để xem lớn và zoom nét căng, sau đó bấm nút <strong>"Tải ảnh"</strong>.<br>
+                - <strong>Tải nhiều ảnh:</strong> Nhấn giữ ngón tay ngoài màn hình chính trong 0.5 giây để chọn nhanh hàng loạt.
             </p>
             <button class="btn-copy-link" style="width:100%; padding:12px; background:#3b82f6; color:white; font-size:15px;" onclick="closeModal('modal-download-guide')">Đã hiểu</button>
         </div>
@@ -164,7 +164,7 @@
         </div>
     </div>
 
-    <!-- LIGHTBOX IOS PHOTOS STYLE (ZOOM & SWIPE) -->
+    <!-- LIGHTBOX -->
     <div id="lightbox">
         <div class="lb-header">
             <div class="lb-header-left">
@@ -196,7 +196,6 @@
         var touchTimer = null;
         var startX = 0, startY = 0;
 
-        // Biến phục vụ Zoom & Vuốt chuyển ảnh iOS
         var scale = 1, panning = false, pointX = 0, pointY = 0, startTouchX = 0, startTouchY = 0;
 
         window.onload = function() {
@@ -258,7 +257,6 @@
             setupLightboxGestures();
         }
 
-        // TẢI FILE GỐC CHỐNG CHẶN TRÊN MESSENGER
         function forceDownload(url, filename) {
             fetch(url)
             .then(response => response.blob())
@@ -293,7 +291,6 @@
             deselectAllDownload();
         }
 
-        // CẢM ỨNG NGOÀI LƯỚI CHÍNH
         function setupTouchEvents() {
             var gallery = document.getElementById('gallery-container');
             gallery.addEventListener('touchstart', function(e) {
@@ -387,15 +384,12 @@
             closeModal('modal-sort');
         }
 
-        // ==========================================================
-        // LIGHTBOX IOS PHOTOS STYLE: VUỐT CHUYỂN ẢNH & ZOOM MƯỢT
-        // ==========================================================
         function openLightbox(idx) {
             currentLightBoxIndex = idx;
             var file = globalFiles[idx];
             var img = document.getElementById('lb-img');
             resetTransform();
-            img.src = file.viewUrl;
+            img.src = file.viewUrl; // Lấy ảnh gốc nét căng =s0
             document.getElementById('lb-counter').innerText = (idx + 1) + " / " + globalFiles.length;
 
             updateLbHeartUI();
@@ -429,7 +423,6 @@
             btn.querySelector('i').className = isLiked ? "fa-solid fa-heart" : "fa-regular fa-heart";
         }
 
-        // CƠ CHẾ GESTURE IOS: VUỐT NGANG ĐỔI ẢNH & DOUBLE TAP ZOOM / PINCH ZOOM
         function setupLightboxGestures() {
             const zone = document.getElementById('lb-swipe-zone');
             const img = document.getElementById('lb-img');
@@ -480,15 +473,14 @@
             zone.addEventListener('touchend', e => {
                 if (e.touches.length === 0) {
                     panning = false;
-                    // Nếu không zoom, vuốt ngang qua trái/phải để chuyển ảnh y hệt iPhone
                     if (scale === 1) {
                         let endX = e.changedTouches[0].clientX;
                         let diffX = endX - swipeStartX;
                         if (Math.abs(diffX) > 60) {
                             if (diffX > 0) {
-                                changeLightbox(-1); // Vuốt sang phải -> ảnh trước
+                                changeLightbox(-1);
                             } else {
-                                changeLightbox(1);  // Vuốt sang trái -> ảnh sau
+                                changeLightbox(1);
                             }
                         }
                     }
@@ -496,7 +488,6 @@
                 }
             });
 
-            // Double tap để zoom nhanh 2.5x hoặc thu nhỏ
             let lastTap = 0;
             img.addEventListener('click', e => {
                 let now = new Date().getTime();
