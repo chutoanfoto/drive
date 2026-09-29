@@ -7,203 +7,132 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: #f8f9fa; color: #333; overscroll-behavior-y: none; }
+        body { background-color: #f8f9fa; color: #333; overscroll-behavior-y: none; padding-bottom: 80px; }
 
         /* Loader */
         #loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 5000; }
         .spinner { width: 45px; height: 45px; border: 4px solid #eee; border-top-color: #ef4444; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 15px; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Cover */
+        /* Cover Banner */
         .cover-container { position: relative; width: 100%; height: 50vh; min-height: 350px; background: #222; overflow: hidden; }
         .cover-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.85; }
-        .cover-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%); padding: 40px 30px 25px; color: white; }
+        .cover-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%); padding: 40px 30px 25px; color: white; text-align: center; }
         .cover-overlay h1 { font-size: 32px; font-weight: 700; margin-bottom: 6px; }
         .cover-overlay p { font-size: 15px; opacity: 0.9; }
 
-        /* Admin Toolbar Đầy Đủ 100% */
-        .admin-action-bar { position: sticky; top: 0; background: white; z-index: 100; border-bottom: 1px solid #eee; padding: 12px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.04); overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
-        .admin-action-bar::-webkit-scrollbar { display: none; }
-        @media (max-width: 768px) { .admin-action-bar { padding: 12px 15px; } }
+        /* Thanh công cụ Khách Hàng */
+        .client-action-bar { background: white; border-bottom: 1px solid #eee; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+        .client-stats { display: flex; align-items: center; gap: 15px; font-size: 14px; font-weight: 600; color: #444; }
+        .badge-total { background: #e0f2fe; color: #0284c7; padding: 6px 14px; border-radius: 20px; display: flex; align-items: center; gap: 6px; }
+        .badge-likes { background: #ffe4e6; color: #e11d48; padding: 6px 14px; border-radius: 20px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
         
-        .stat-cluster { display: flex; align-items: center; gap: 20px; font-size: 14px; font-weight: 600; color: #444; }
-        .badge-green { background: #d1fae5; color: #10b981; padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 6px; }
-        .stat-item { display: flex; align-items: center; gap: 6px; }
-        
-        .tools-cluster { display: flex; align-items: center; gap: 10px; }
-        .tb-btn { background: none; border: none; font-size: 14px; font-weight: 500; color: #444; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: 0.2s; padding: 6px 10px; border-radius: 6px; }
-        .tb-btn:hover { background: #f1f3f5; }
-        .tb-btn.active-green { background: #d1fae5; color: #10b981; border-radius: 20px; padding: 6px 15px; }
-        .tb-btn.highlight-red { color: #dc2626; }
-        
-        .btn-submit-likes { background: #ccc; color: white; border: none; padding: 8px 20px; border-radius: 20px; font-weight: 600; font-size: 13px; cursor: not-allowed; transition: 0.2s; margin-left: 10px; }
-        .btn-submit-likes.ready { background: #ef4444; cursor: pointer; }
+        .client-tools { display: flex; align-items: center; gap: 15px; }
+        .client-btn { background: #f3f4f6; border: none; font-size: 14px; font-weight: 600; color: #374151; display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 16px; border-radius: 20px; transition: 0.2s; }
+        .client-btn:hover { background: #e5e7eb; }
+        .client-btn.primary { background: #10b981; color: white; }
+        .client-btn.primary:hover { background: #059669; }
 
-        /* LƯỚI ẢNH & GOOGLE PHOTOS SELECTION */
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; padding: 25px 30px 120px; max-width: 1500px; margin: 0 auto; user-select: none; }
-        @media (max-width: 768px) { .gallery-grid { grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 10px 4px 100px; } }
+        /* LƯỚI ẢNH */
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; padding: 25px 30px 120px; max-width: 1500px; margin: 0 auto; user-select: none; }
+        @media (max-width: 768px) { .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 10px 8px 100px; } }
         
-        .photo-card { position: relative; border-radius: 6px; overflow: hidden; background: #eaeaea; aspect-ratio: 2/3; box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer; touch-action: pan-y; transition: transform 0.2s, border 0.2s; border: 3px solid transparent; }
-        @media (max-width: 768px) { .photo-card { border-radius: 2px; border-width: 2px; } }
+        .photo-card { position: relative; border-radius: 8px; overflow: hidden; background: #eaeaea; aspect-ratio: 2/3; box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer; touch-action: pan-y; transition: transform 0.2s, border 0.2s; border: 3px solid transparent; }
         .photo-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
         
-        .photo-card.dl-selected { border-color: #3b82f6; transform: scale(0.95); border-radius: 8px; }
-        .check-icon { display: none; position: absolute; top: 10px; left: 10px; color: white; background: #3b82f6; border-radius: 50%; padding: 3px 4px; font-size: 12px; z-index: 10; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .photo-card.dl-selected { border-color: #3b82f6; transform: scale(0.96); border-radius: 8px; }
+        .check-icon { display: none; position: absolute; top: 10px; left: 10px; color: white; background: #3b82f6; border-radius: 50%; padding: 4px 6px; font-size: 12px; z-index: 10; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .photo-card.dl-selected .check-icon { display: block; }
-        @media (max-width: 768px) { .check-icon { top: 5px; left: 5px; font-size: 10px; padding: 2px 3px; } }
 
-        .btn-heart-grid { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.4); width: 32px; height: 32px; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; z-index: 10; }
-        @media (max-width: 768px) { .btn-heart-grid { top: 5px; right: 5px; width: 26px; height: 26px; font-size: 12px; } }
+        .btn-heart-grid { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.4); width: 34px; height: 34px; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; z-index: 10; }
         .btn-heart-grid.liked { background: white; color: #ef4444; border-color: white; transform: scale(1.1); }
         
         .photo-info { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%); padding: 15px 10px 8px; opacity: 0; transition: 0.3s; pointer-events: none; }
-        @media (max-width: 768px) { .photo-info { opacity: 1; padding: 20px 5px 5px; background: linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 100%); } }
+        @media (max-width: 768px) { .photo-info { opacity: 1; padding: 20px 8px 8px; background: linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 100%); } }
         .photo-title { color: white; font-size: 11px; font-family: monospace; }
 
         /* THANH NỔI TẢI VỀ */
-        .mobile-bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px 20px; box-shadow: 0 -4px 20px rgba(0,0,0,0.1); z-index: 1000; display: flex; justify-content: space-between; align-items: center; transform: translateY(120%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-top-left-radius: 20px; border-top-right-radius: 20px; }
+        .mobile-bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px 25px; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); z-index: 1000; display: flex; justify-content: space-between; align-items: center; transform: translateY(120%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-top-left-radius: 20px; border-top-right-radius: 20px; }
         .mobile-bottom-bar.active { transform: translateY(0); }
         .mbb-count { font-size: 15px; font-weight: bold; color: #3b82f6; display: flex; align-items: center; gap: 8px; }
-        .mbb-actions { display: flex; gap: 10px; }
-        .btn-mbb-deselect { background: #f3f4f6; color: #4b5563; border: none; padding: 10px 18px; border-radius: 20px; font-weight: 600; font-size: 14px; cursor: pointer; }
-        .btn-mbb-save { background: #3b82f6; color: white; border: none; padding: 10px 25px; border-radius: 20px; font-weight: 600; font-size: 14px; cursor: pointer; }
+        .mbb-actions { display: flex; gap: 12px; }
+        .btn-mbb-deselect { background: #f3f4f6; color: #4b5563; border: none; padding: 10px 20px; border-radius: 20px; font-weight: 600; font-size: 14px; cursor: pointer; }
+        .btn-mbb-save { background: #3b82f6; color: white; border: none; padding: 10px 28px; border-radius: 20px; font-weight: 600; font-size: 14px; cursor: pointer; }
 
-        /* MODALS ĐẦY ĐỦ CHI TIẾT */
+        /* MODALS */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 4000; justify-content: center; align-items: center; }
         .modal.active { display: flex; }
-        .modal-box { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 600px; position: relative; max-height: 90vh; overflow-y: auto; }
+        .modal-box { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 500px; position: relative; max-height: 90vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-header h3 { font-size: 20px; font-weight: 700; color: #ef4444; }
+        .modal-header h3 { font-size: 20px; font-weight: 700; color: #111; }
         .btn-close { background: none; border: none; font-size: 20px; cursor: pointer; color: #999; }
-        
-        .form-group { margin-bottom: 18px; }
-        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
-        .form-control { width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; outline: none; }
-        .toggle-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 14px; color: #374151; font-weight: 500; }
-        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .3s; border-radius: 24px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
-        input:checked + .slider { background-color: #ef4444; }
-        input:checked + .slider:before { transform: translateX(20px); }
+        .form-control { width: 100%; padding: 12px 16px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; outline: none; }
+        .share-box { display: flex; justify-content: space-between; align-items: center; background: #f9fafb; border: 1px solid #e5e7eb; padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; }
+        .share-url { font-size: 13px; color: #4b5563; width: 70%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .btn-copy-link { background: #d1fae5; color: #10b981; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px; }
 
-        .filter-tabs { display: flex; gap: 25px; border-bottom: 2px solid #e5e7eb; margin-bottom: 20px; }
-        .f-tab { padding-bottom: 10px; font-weight: 600; color: #9ca3af; cursor: pointer; }
-        .f-tab.active { color: #10b981; border-bottom: 2px solid #10b981; margin-bottom: -2px; }
-        .history-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
-        .history-table th { padding: 10px; border-bottom: 1px solid #e5e7eb; color: #4b5563; }
-        .history-table td { padding: 15px 10px; color: #6b7280; border-bottom: 1px solid #f3f4f6; }
-        .share-box { display: flex; justify-content: space-between; align-items: center; background: #f9fafb; border: 1px solid #e5e7eb; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; }
-        .share-url { font-size: 13px; color: #4b5563; width: 75%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .btn-copy-link { background: #d1fae5; color: #10b981; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px; }
-
-        /* LIGHTBOX HỖ TRỢ ZOOM CỰC KỲ RÕ NÉT */
-        #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f0f0f; z-index: 3000; flex-direction: column; justify-content: space-between; }
-        .lb-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; color: #ccc; font-size: 14px; }
+        /* LIGHTBOX CHUẨN IOS PHOTOS (ZOOM MƯỢT & VUỐT QUA LẠI) */
+        #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 3000; flex-direction: column; justify-content: space-between; touch-action: none; }
+        .lb-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; color: #ccc; font-size: 14px; z-index: 10; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); }
         .lb-header-left { display: flex; align-items: center; gap: 15px; }
-        .lb-btn-setcover { background: none; border: 1px solid #ccc; color: #ccc; padding: 5px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
-        .lb-btn-download { background: #3b82f6; color: white; border: none; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
-        .lb-btn-download:hover { background: #2563eb; }
+        .lb-btn-download { background: #3b82f6; color: white; border: none; padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
         .lb-actions { display: flex; gap: 20px; }
-        .lb-btn { background: none; border: none; color: #ccc; font-size: 22px; cursor: pointer; }
+        .lb-btn { background: none; border: none; color: #ccc; font-size: 24px; cursor: pointer; }
         .lb-btn-like.liked { color: #ef4444; }
-        .lb-content { flex: 1; display: flex; justify-content: center; align-items: center; position: relative; overflow: auto; }
-        .lb-img { max-width: 100%; max-height: 90vh; object-fit: contain; transition: transform 0.2s ease; cursor: zoom-in; }
-        .lb-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.1); border: none; color: white; width: 50px; height: 50px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 10; }
-        .lb-prev { left: 10px; } .lb-next { right: 10px; }
+        
+        .lb-content { flex: 1; display: flex; justify-content: center; align-items: center; position: relative; overflow: hidden; width: 100%; height: 100%; }
+        .lb-img { max-width: 100%; max-height: 90vh; object-fit: contain; transform-origin: center; transition: transform 0.1s ease-out; cursor: grab; user-select: none; }
+        .lb-img:active { cursor: grabbing; }
+        
+        .lb-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.15); border: none; color: white; width: 50px; height: 50px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; }
+        @media (max-width: 768px) { .lb-nav { display: none; } } /* Trên mobile ẩn nút mũi tên để ưu tiên vuốt ngang */
+        .lb-prev { left: 15px; } .lb-next { right: 15px; }
     </style>
 </head>
 <body>
 
     <div id="loading-screen">
         <div class="spinner"></div>
-        <p style="color: #666; font-size: 14px;" id="loading-text">Đang đồng bộ ảnh nét cao từ Drive...</p>
+        <p style="color: #666; font-size: 14px;" id="loading-text">Đang tải album chất lượng cao...</p>
     </div>
 
     <div class="cover-container" id="cover-block">
         <img id="cover-photo" class="cover-img" src="" alt="Cover">
         <div class="cover-overlay">
-            <h1 id="album-title">Tên Album</h1>
-            <p id="client-name">Khách hàng: </p>
+            <h1 id="album-title">Album Minh Tuyết</h1>
+            <p id="client-name">Minh Tuyết</p>
         </div>
     </div>
 
-    <!-- THANH CÔNG CỤ ADMIN -->
-    <div class="admin-action-bar">
-        <div class="stat-cluster">
-            <div class="badge-green"><i class="fa-regular fa-image"></i> <span id="total-photos">0</span></div>
-            <div class="stat-item" style="color: #ef4444;"><i class="fa-solid fa-heart"></i> <span id="likes-count">0</span></div>
+    <div class="client-action-bar">
+        <div class="client-stats">
+            <div class="badge-total"><i class="fa-regular fa-image"></i> <span id="total-photos">0</span> ảnh</div>
+            <div class="badge-likes" onclick="openResultModal()"><i class="fa-solid fa-heart"></i> <span id="likes-count">0</span> đã chọn</div>
         </div>
-        <div class="tools-cluster">
-            <button class="tb-btn" onclick="openModal('modal-share')"><i class="fa-solid fa-share-nodes"></i> Chia sẻ</button>
-            <button class="tb-btn" onclick="location.reload()"><i class="fa-solid fa-rotate-right"></i> Tải lại</button>
-            <button class="tb-btn" onclick="alert('Đã khoá album')"><i class="fa-solid fa-lock"></i> Khoá</button>
-            <button class="tb-btn" onclick="openModal('modal-filter')"><i class="fa-solid fa-filter"></i> Lọc file</button>
-            <button class="tb-btn" onclick="openModal('modal-history')"><i class="fa-regular fa-clipboard"></i> Lịch sử</button>
-            <button class="tb-btn active-green" onclick="openModal('modal-sort')"><i class="fa-solid fa-list-ul"></i> Sắp xếp</button>
-            <button class="tb-btn" onclick="openModal('modal-download')"><i class="fa-solid fa-download"></i> Tải xuống</button>
-            <button class="tb-btn highlight-red" onclick="openModal('modal-settings')"><i class="fa-solid fa-wrench"></i> Tùy chỉnh</button>
-            <button class="btn-submit-likes" id="btn-submit-list" disabled onclick="openResultModal()">Gửi Danh Sách Đã Chọn</button>
+        <div class="client-tools">
+            <button class="client-btn" onclick="openModal('modal-sort')"><i class="fa-solid fa-list-ul"></i> Sắp xếp</button>
+            <button class="client-btn" onclick="openModal('modal-share')"><i class="fa-solid fa-share-nodes"></i> Chia sẻ</button>
+            <button class="client-btn primary" onclick="openModal('modal-download-guide')"><i class="fa-solid fa-download"></i> Tải xuống</button>
         </div>
     </div>
 
     <div class="gallery-grid" id="gallery-container"></div>
 
     <div class="mobile-bottom-bar" id="mobile-bar">
-        <div class="mbb-count"><i class="fa-solid fa-circle-check"></i> <span>Đã chọn: <span id="dl-selected-count">0</span></span></div>
+        <div class="mbb-count"><i class="fa-solid fa-circle-check"></i> <span>Đã chọn: <span id="dl-selected-count">0</span> ảnh</span></div>
         <div class="mbb-actions">
             <button class="btn-mbb-deselect" onclick="deselectAllDownload()">Bỏ chọn</button>
-            <button class="btn-mbb-save" onclick="downloadSelectedFiles()">Tải ảnh</button>
+            <button class="btn-mbb-save" onclick="downloadSelectedFiles()">Tải ảnh gốc</button>
         </div>
     </div>
 
     <!-- MODALS -->
-    <div class="modal" id="modal-settings">
-        <div class="modal-box">
-            <div class="modal-header"><h3>Chỉnh sửa album</h3><button class="btn-close" onclick="closeModal('modal-settings')"><i class="fa-solid fa-xmark"></i></button></div>
-            <div class="form-group"><label>Link ảnh Google Drive</label><input type="text" class="form-control" id="s-drive"></div>
-            <div class="form-group"><label>Tên album</label><input type="text" class="form-control" id="s-album"></div>
-            <div class="form-group"><label>Tên khách hàng</label><input type="text" class="form-control" id="s-client"></div>
-            <div class="toggle-row"><span>Cho phép bình luận</span><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></div>
-            <div class="toggle-row"><span>Cho phép tải xuống</span><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></div>
-            <div style="display:flex; justify-content: flex-end; gap:10px; margin-top:20px;">
-                <button class="btn-cancel" onclick="closeModal('modal-settings')">Hủy bỏ</button>
-                <button class="btn-submit" onclick="alert('Đã lưu!')">Chỉnh sửa</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="modal-download">
-        <div class="modal-box">
-            <div class="modal-header"><h3>Tải về</h3><button class="btn-close" onclick="closeModal('modal-download')"><i class="fa-solid fa-xmark"></i></button></div>
-            <p style="font-size:13px; color:#666; margin-bottom:15px;">Chọn ảnh trực tiếp ngoài màn hình để tải ngay ảnh gốc về máy.</p>
-        </div>
-    </div>
-
-    <div class="modal" id="modal-history">
-        <div class="modal-box" style="max-width: 750px;">
-            <div class="modal-header"><h3>Lịch sử hoạt động</h3><button class="btn-close" onclick="closeModal('modal-history')"><i class="fa-solid fa-xmark"></i></button></div>
-            <table class="history-table">
-                <tr><th>Thời gian</th><th>Hành động</th><th>Người dùng</th><th>IP</th></tr>
-                <tr><td>Hôm nay</td><td>Xem album</td><td>Khách hàng</td><td>123.45.67</td></tr>
-            </table>
-        </div>
-    </div>
-
-    <div class="modal" id="modal-filter">
-        <div class="modal-box">
-            <div class="modal-header"><h3>Lọc ảnh</h3><button class="btn-close" onclick="closeModal('modal-filter')"><i class="fa-solid fa-xmark"></i></button></div>
-            <textarea class="form-control" style="height:100px; resize:none; margin-bottom:15px;" placeholder="Nhập tên file ảnh cần lọc..."></textarea>
-            <button class="btn-submit" style="width:100%; background:#3b82f6;">Bắt đầu lọc</button>
-        </div>
-    </div>
-
     <div class="modal" id="modal-sort">
         <div class="modal-box" style="max-width: 400px;">
             <div class="modal-header"><h3>Sắp xếp ảnh</h3><button class="btn-close" onclick="closeModal('modal-sort')"><i class="fa-solid fa-xmark"></i></button></div>
             <div style="display:flex; flex-direction:column; gap:10px;">
-                <div class="sort-item selected" id="sort-az" onclick="applySortLocal('az')" style="padding:12px; background:#f3f4f6; border-radius:8px; cursor:pointer;"><i class="fa-solid fa-arrow-down-a-z"></i> Tên hình ảnh từ A -> Z</div>
-                <div class="sort-item" id="sort-za" onclick="applySortLocal('za')" style="padding:12px; background:#f3f4f6; border-radius:8px; cursor:pointer;"><i class="fa-solid fa-arrow-up-z-a"></i> Tên hình ảnh từ Z -> A</div>
+                <div class="sort-item selected" id="sort-az" onclick="applySortLocal('az')" style="padding:14px; background:#f3f4f6; border-radius:8px; cursor:pointer; font-weight:500;"><i class="fa-solid fa-arrow-down-a-z"></i> Tên hình ảnh từ A -> Z</div>
+                <div class="sort-item" id="sort-za" onclick="applySortLocal('za')" style="padding:14px; background:#f3f4f6; border-radius:8px; cursor:pointer; font-weight:500;"><i class="fa-solid fa-arrow-up-z-a"></i> Tên hình ảnh từ Z -> A</div>
             </div>
         </div>
     </div>
@@ -211,25 +140,35 @@
     <div class="modal" id="modal-share">
         <div class="modal-box">
             <div class="modal-header"><h3>Chia sẻ Album</h3><button class="btn-close" onclick="closeModal('modal-share')"><i class="fa-solid fa-xmark"></i></button></div>
-            <p style="font-size:13px; font-weight:600; margin-bottom:5px;">Link chọn ảnh cho khách:</p>
+            <p style="font-size:13px; font-weight:600; margin-bottom:6px; color:#4b5563;">Đường dẫn bộ sưu tập:</p>
             <div class="share-box"><span class="share-url" id="link-1"></span><button class="btn-copy-link" onclick="copyTxt('link-1')">Sao chép</button></div>
+        </div>
+    </div>
+
+    <div class="modal" id="modal-download-guide">
+        <div class="modal-box">
+            <div class="modal-header"><h3>Hướng dẫn tải xuống</h3><button class="btn-close" onclick="closeModal('modal-download-guide')"><i class="fa-solid fa-xmark"></i></button></div>
+            <p style="font-size:14px; color:#4b5563; line-height:1.6; margin-bottom:15px;">
+                - <strong>Tải từng ảnh:</strong> Bấm vào ảnh bất kỳ để xem lớn, sau đó bấm nút <strong>"Tải ảnh"</strong>.<br>
+                - <strong>Tải nhiều ảnh:</strong> Nhấn giữ ngón tay ngoài màn hình chính để chọn nhanh hàng loạt.
+            </p>
+            <button class="btn-copy-link" style="width:100%; padding:12px; background:#3b82f6; color:white; font-size:15px;" onclick="closeModal('modal-download-guide')">Đã hiểu</button>
         </div>
     </div>
 
     <div class="modal" id="result-modal">
         <div class="modal-box">
-            <div class="modal-header"><h3>Danh sách ảnh đã chọn</h3><button class="btn-close" onclick="closeModal('result-modal')"><i class="fa-solid fa-xmark"></i></button></div>
-            <textarea class="form-control" id="result-list" style="height:120px; font-family:monospace; resize:none; margin-bottom:15px;" readonly></textarea>
-            <button class="btn-submit" onclick="copyTxt('result-list')" style="width:100%; background:#10b981;">Sao chép danh sách</button>
+            <div class="modal-header"><h3>Ảnh đã đánh dấu (Thả tim)</h3><button class="btn-close" onclick="closeModal('result-modal')"><i class="fa-solid fa-xmark"></i></button></div>
+            <textarea class="form-control" id="result-list" style="height:130px; font-family:monospace; resize:none; margin-bottom:15px;" readonly></textarea>
+            <button class="client-btn primary" style="width:100%; justify-content:center; padding:12px;" onclick="copyTxt('result-list')">Sao chép danh sách</button>
         </div>
     </div>
 
-    <!-- LIGHTBOX -->
+    <!-- LIGHTBOX IOS PHOTOS STYLE (ZOOM & SWIPE) -->
     <div id="lightbox">
         <div class="lb-header">
             <div class="lb-header-left">
                 <div class="lb-counter" id="lb-counter">1 / 100</div>
-                <button class="lb-btn-setcover" onclick="setCover()"><i class="fa-regular fa-star"></i> Đặt làm ảnh bìa</button>
                 <button class="lb-btn-download" onclick="downloadSingleFile(currentLightBoxIndex)"><i class="fa-solid fa-download"></i> Tải ảnh</button>
             </div>
             <div class="lb-actions">
@@ -237,9 +176,9 @@
                 <button class="lb-btn" onclick="closeLightbox()"><i class="fa-solid fa-xmark"></i></button>
             </div>
         </div>
-        <div class="lb-content" id="lb-content-box">
+        <div class="lb-content" id="lb-swipe-zone">
             <button class="lb-nav lb-prev" onclick="changeLightbox(-1)"><i class="fa-solid fa-chevron-left"></i></button>
-            <img src="" id="lb-img" class="lb-img" onclick="toggleZoom(this)">
+            <img src="" id="lb-img" class="lb-img">
             <button class="lb-nav lb-next" onclick="changeLightbox(1)"><i class="fa-solid fa-chevron-right"></i></button>
         </div>
     </div>
@@ -256,6 +195,9 @@
         var isDragging = false;
         var touchTimer = null;
         var startX = 0, startY = 0;
+
+        // Biến phục vụ Zoom & Vuốt chuyển ảnh iOS
+        var scale = 1, panning = false, pointX = 0, pointY = 0, startTouchX = 0, startTouchY = 0;
 
         window.onload = function() {
             var urlParams = new URLSearchParams(window.location.search);
@@ -281,10 +223,7 @@
         function renderAlbum(data) {
             if(data) {
                 document.getElementById('album-title').innerText = data.album.albumName;
-                document.getElementById('client-name').innerText = "Khách hàng: " + data.album.clientName;
-                document.getElementById('s-album').value = data.album.albumName;
-                document.getElementById('s-client').value = data.album.clientName;
-                document.getElementById('s-drive').value = data.album.driveLink;
+                document.getElementById('client-name').innerText = data.album.clientName;
                 document.getElementById('total-photos').innerText = globalFiles.length;
                 if (globalFiles.length > 0) document.getElementById('cover-photo').src = globalFiles[0].viewUrl;
             }
@@ -316,9 +255,10 @@
 
             document.getElementById('loading-screen').style.display = "none";
             setupTouchEvents();
+            setupLightboxGestures();
         }
 
-        // HÀM TẢI FILE GỐC CHỐNG CHẶN TRÊN MESSENGER VÀ LƯU THẲNG VỀ MÁY
+        // TẢI FILE GỐC CHỐNG CHẶN TRÊN MESSENGER
         function forceDownload(url, filename) {
             fetch(url)
             .then(response => response.blob())
@@ -353,18 +293,14 @@
             deselectAllDownload();
         }
 
-        // CẢI TIẾN ĐỘ TRỄ CẢM ỨNG (CHỐNG NHẠY QUÁ KHI CUỘN XEM ẢNH)
+        // CẢM ỨNG NGOÀI LƯỚI CHÍNH
         function setupTouchEvents() {
             var gallery = document.getElementById('gallery-container');
-            
             gallery.addEventListener('touchstart', function(e) {
                 var card = e.target.closest('.photo-card');
                 if (!card) return;
                 var touch = e.touches[0];
-                startX = touch.clientX;
-                startY = touch.clientY;
-                
-                // Tăng thời gian giữ lên 500ms (0.5s) và yêu cầu giữ tĩnh tay để không nhầm với hành vi cuộn trang
+                startX = touch.clientX; startY = touch.clientY;
                 touchTimer = setTimeout(function() {
                     isDragging = true;
                     if(navigator.vibrate) navigator.vibrate(50);
@@ -375,7 +311,6 @@
 
             gallery.addEventListener('touchmove', function(e) {
                 var touch = e.touches[0];
-                // Nếu ngón tay di chuyển quá 10px thì coi như khách đang vuốt cuộn màn hình -> Hủy ngay lệnh giữ chọn
                 if (Math.abs(touch.clientX - startX) > 10 || Math.abs(touch.clientY - startY) > 10) {
                     clearTimeout(touchTimer);
                 }
@@ -427,9 +362,6 @@
 
         function updateLikesUI() {
             document.getElementById('likes-count').innerText = likedPhotos.length;
-            var subBtn = document.getElementById('btn-submit-list');
-            subBtn.disabled = likedPhotos.length === 0;
-            subBtn.classList.toggle('ready', likedPhotos.length > 0);
         }
 
         function openModal(id) { document.getElementById(id).classList.add('active'); }
@@ -455,47 +387,130 @@
             closeModal('modal-sort');
         }
 
-        function setCover() { alert("Đã đặt " + globalFiles[currentLightBoxIndex].name + " làm ảnh bìa!"); }
-
-        // LIGHTBOX & ZOOM ẢNH NÉT CĂNG
+        // ==========================================================
+        // LIGHTBOX IOS PHOTOS STYLE: VUỐT CHUYỂN ẢNH & ZOOM MƯỢT
+        // ==========================================================
         function openLightbox(idx) {
             currentLightBoxIndex = idx;
             var file = globalFiles[idx];
             var img = document.getElementById('lb-img');
-            img.style.transform = "scale(1)"; // Reset zoom
-            img.src = file.viewUrl; // Ảnh nét cao độ phân giải gốc
+            resetTransform();
+            img.src = file.viewUrl;
             document.getElementById('lb-counter').innerText = (idx + 1) + " / " + globalFiles.length;
 
             updateLbHeartUI();
             document.getElementById('lightbox').style.display = "flex";
         }
 
-        function toggleZoom(img) {
-            if (img.style.transform === "scale(2.5)") {
-                img.style.transform = "scale(1)";
-                img.style.cursor = "zoom-in";
-            } else {
-                img.style.transform = "scale(2.5)";
-                img.style.cursor = "zoom-out";
-            }
+        function resetTransform() {
+            scale = 1; pointX = 0; pointY = 0;
+            var img = document.getElementById('lb-img');
+            img.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
         }
 
         function closeLightbox() { document.getElementById('lightbox').style.display = "none"; }
+        
         function changeLightbox(dir) {
             currentLightBoxIndex += dir;
             if(currentLightBoxIndex < 0) currentLightBoxIndex = globalFiles.length - 1;
             if(currentLightBoxIndex >= globalFiles.length) currentLightBoxIndex = 0;
             openLightbox(currentLightBoxIndex);
         }
+
         function toggleHeartFromLightbox() { 
             toggleHeart({stopPropagation:()=>{}}, globalFiles[currentLightBoxIndex].name, currentLightBoxIndex);
             updateLbHeartUI();
         }
+
         function updateLbHeartUI() {
             var btn = document.getElementById('lb-btn-like');
             var isLiked = likedPhotos.includes(globalFiles[currentLightBoxIndex].name);
             btn.classList.toggle('liked', isLiked);
             btn.querySelector('i').className = isLiked ? "fa-solid fa-heart" : "fa-regular fa-heart";
+        }
+
+        // CƠ CHẾ GESTURE IOS: VUỐT NGANG ĐỔI ẢNH & DOUBLE TAP ZOOM / PINCH ZOOM
+        function setupLightboxGestures() {
+            const zone = document.getElementById('lb-swipe-zone');
+            const img = document.getElementById('lb-img');
+
+            let initialDistance = 0;
+            let lastTouchX = 0, lastTouchY = 0;
+            let swipeStartX = 0;
+
+            zone.addEventListener('touchstart', e => {
+                if (e.touches.length === 1) {
+                    startTouchX = e.touches[0].clientX;
+                    startTouchY = e.touches[0].clientY;
+                    swipeStartX = startTouchX;
+                    if (scale > 1) {
+                        panning = true;
+                        lastTouchX = startTouchX - pointX;
+                        lastTouchY = startTouchY - pointY;
+                    }
+                } else if (e.touches.length === 2) {
+                    initialDistance = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                }
+            }, {passive: true});
+
+            zone.addEventListener('touchmove', e => {
+                if (e.touches.length === 1) {
+                    let currentX = e.touches[0].clientX;
+                    let currentY = e.touches[0].clientY;
+                    if (scale > 1 && panning) {
+                        pointX = currentX - lastTouchX;
+                        pointY = currentY - lastTouchY;
+                        img.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
+                    }
+                } else if (e.touches.length === 2 && initialDistance > 0) {
+                    let currentDistance = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                    let zoomFactor = currentDistance / initialDistance;
+                    scale = Math.min(Math.max(1, scale * zoomFactor), 4);
+                    initialDistance = currentDistance;
+                    img.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
+                }
+            }, {passive: true});
+
+            zone.addEventListener('touchend', e => {
+                if (e.touches.length === 0) {
+                    panning = false;
+                    // Nếu không zoom, vuốt ngang qua trái/phải để chuyển ảnh y hệt iPhone
+                    if (scale === 1) {
+                        let endX = e.changedTouches[0].clientX;
+                        let diffX = endX - swipeStartX;
+                        if (Math.abs(diffX) > 60) {
+                            if (diffX > 0) {
+                                changeLightbox(-1); // Vuốt sang phải -> ảnh trước
+                            } else {
+                                changeLightbox(1);  // Vuốt sang trái -> ảnh sau
+                            }
+                        }
+                    }
+                    if (scale < 1) { resetTransform(); }
+                }
+            });
+
+            // Double tap để zoom nhanh 2.5x hoặc thu nhỏ
+            let lastTap = 0;
+            img.addEventListener('click', e => {
+                let now = new Date().getTime();
+                if (now - lastTap < 300) {
+                    if (scale === 1) {
+                        scale = 2.5;
+                        pointX = 0; pointY = 0;
+                    } else {
+                        resetTransform();
+                    }
+                    img.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
+                }
+                lastTap = now;
+            });
         }
     </script>
 </body>
