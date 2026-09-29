@@ -25,17 +25,15 @@
         .search-box input { width: 100%; padding: 9px 12px 9px 38px; border: 1px solid #d1d5db; border-radius: 20px; outline: none; font-size: 13px; }
         .search-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 14px; }
 
-        /* Main Container */
+        /* Main Container & Dashboard Grid */
         .main-container { max-width: 1400px; margin: 30px auto; padding: 0 30px; }
         .album-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
         
-        /* Create Card */
         .create-card { border: 2px dashed #d1d5db; border-radius: 12px; background: white; display: flex; flex-direction: column; justify-content: center; align-items: center; aspect-ratio: 16/10; cursor: pointer; transition: 0.2s; }
         .create-card:hover { border-color: #ef4444; background: #fff5f5; }
         .create-card i { font-size: 28px; color: #ef4444; margin-bottom: 10px; }
         .create-card span { font-weight: 600; color: #374151; font-size: 14px; }
 
-        /* Album Item Card */
         .album-item-card { background: white; border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: 0.2s; display: flex; flex-direction: column; }
         .album-item-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
         .aic-thumb { width: 100%; height: 160px; background: #e5e7eb; position: relative; }
@@ -47,17 +45,41 @@
         .aic-link { color: #3b82f6; text-decoration: none; font-weight: 500; }
         .aic-link:hover { text-decoration: underline; }
 
-        /* Modal Tạo Album */
+        /* MODAL TẠO ALBUM CHUẨN SHOTPIK */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; }
         .modal.active { display: flex; }
-        .modal-box { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .modal-header h3 { font-size: 22px; color: #ef4444; font-weight: 700; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 8px; }
+        .modal-box { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 650px; max-height: 90vh; overflow-y: auto; position: relative; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h3 { font-size: 24px; color: #ef4444; font-weight: 700; }
+        
+        .source-tabs { display: flex; gap: 20px; border-bottom: 1px solid #e5e7eb; margin-bottom: 20px; font-size: 14px; font-weight: 600; }
+        .s-tab { padding-bottom: 8px; color: #9ca3af; cursor: pointer; }
+        .s-tab.active { color: #10b981; border-bottom: 2px solid #10b981; margin-bottom: -1px; }
+
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
         .form-control { width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; outline: none; }
         .form-control:focus { border-color: #ef4444; }
-        .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 30px; }
+        
+        .input-group-btn { display: flex; gap: 10px; }
+        .input-group-btn .form-control { flex: 1; }
+        .btn-add-green { background: #10b981; color: white; border: none; width: 42px; border-radius: 8px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+        .domain-input-wrap { display: flex; align-items: center; border: 1px solid #d1d5db; border-radius: 8px; overflow: hidden; background: #f9fafb; }
+        .domain-prefix { padding: 10px 12px; font-size: 13px; color: #6b7280; background: #f3f4f6; border-right: 1px solid #d1d5db; }
+        .domain-input-wrap input { border: none; background: transparent; padding: 10px 14px; flex: 1; outline: none; font-size: 14px; }
+
+        .note-text { font-size: 12px; color: #6b7280; background: #f9fafb; padding: 10px; border-radius: 6px; margin-bottom: 20px; line-height: 1.5; border-left: 3px solid #10b981; }
+
+        .toggle-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 14px; color: #374151; font-weight: 500; }
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .3s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+        input:checked + .slider { background-color: #ef4444; }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 25px; border-top: 1px solid #e5e7eb; padding-top: 20px; }
         .btn-cancel { background: #f3f4f6; color: #4b5563; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
         .btn-submit { background: #ef4444; color: white; border: none; padding: 10px 25px; border-radius: 8px; font-weight: 600; cursor: pointer; }
         .btn-submit:hover { background: #dc2626; }
@@ -86,7 +108,7 @@
         </div>
     </div>
 
-    <div class="main-container">
+    <main class="main-container">
         <div class="album-grid" id="dashboard-grid">
             <div class="create-card" onclick="openModal('create-modal')">
                 <i class="fa-solid fa-plus"></i>
@@ -94,35 +116,71 @@
             </div>
             <div id="loading-dash">Đang tải danh sách album từ Google Sheets...</div>
         </div>
-    </div>
+    </main>
 
-    <!-- MODAL TẠO ALBUM -->
+    <!-- MODAL TẠO ALBUM MỚI CHUẨN SHOTPIK -->
     <div class="modal" id="create-modal">
         <div class="modal-box">
             <div class="modal-header">
-                <h3>Tạo Album Mới</h3>
+                <h3>Tạo album</h3>
                 <button class="btn-close" onclick="closeModal('create-modal')" style="background:none;border:none;font-size:18px;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
             </div>
+            
+            <div class="source-tabs">
+                <div class="s-tab active">Google Drive</div>
+                <div class="s-tab" style="color:#d1d5db; cursor:not-allowed;">Local</div>
+            </div>
+
             <form id="create-album-form" onsubmit="submitAlbum(event)">
                 <div class="form-group">
-                    <label>Liên kết thư mục Google Drive</label>
-                    <input type="text" class="form-control" id="f-drive" placeholder="https://drive.google.com/drive/folders/..." required>
+                    <label>Link ảnh Google Drive <i class="fa-regular fa-circle-question" style="color:#9ca3af;"></i></label>
+                    <div class="input-group-btn">
+                        <input type="text" class="form-control" id="f-drive" placeholder="Link Google Drive thư mục chứa ảnh vào đây" required>
+                        <button type="button" class="btn-add-green"><i class="fa-solid fa-plus"></i></button>
+                    </div>
                 </div>
+
                 <div class="form-group">
-                    <label>Tên Album</label>
-                    <input type="text" class="form-control" id="f-album" placeholder="VD: Lễ Vu Quy Minh Tuyết" required>
+                    <label>Tên album</label>
+                    <input type="text" class="form-control" id="f-album" placeholder="Tên album" required>
                 </div>
+
                 <div class="form-group">
                     <label>Tên khách hàng</label>
-                    <input type="text" class="form-control" id="f-client" placeholder="VD: Minh Tuyết" required>
+                    <input type="text" class="form-control" id="f-client" placeholder="Tên khách hàng" required>
                 </div>
+
                 <div class="form-group">
-                    <label>Tên miền phụ (Slug) trên URL</label>
-                    <input type="text" class="form-control" id="f-slug" placeholder="psc-minh-tuyet (Để trống sẽ tự sinh)">
+                    <label>Tên miền album <i class="fa-regular fa-circle-question" style="color:#9ca3af;"></i></label>
+                    <div class="domain-input-wrap">
+                        <span class="domain-prefix">https://chutoanfoto.github.io/drive/gallery.html?id=</span>
+                        <input type="text" id="f-slug" placeholder="psc-minh-tuyet (Tự sinh nếu trống)">
+                    </div>
                 </div>
+
+                <div class="form-group">
+                    <label>Tags (Tối đa 5 tag)</label>
+                    <div class="input-group-btn">
+                        <input type="text" class="form-control" placeholder="Nhập Tag">
+                        <button type="button" class="btn-add-green"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                </div>
+
+                <div class="note-text">
+                    <strong>Lưu ý:</strong> Ảnh bìa album sẽ được thiết lập sau khi tạo album.<br>
+                    Sau khi tạo album, hãy chọn mở ảnh bạn muốn làm ảnh bìa album và nhấn nút "Đặt làm ảnh bìa" để hoàn tất.
+                </div>
+
+                <div class="toggle-row"><span>Cho phép bình luận</span><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></div>
+                <div class="toggle-row"><span>Bật watermark <i class="fa-regular fa-circle-question" style="color:#9ca3af;"></i></span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="toggle-row"><span>Hiện Name Card</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="toggle-row"><span>Bảo vệ album bằng mật khẩu</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="toggle-row"><span>Cho phép tải xuống <i class="fa-regular fa-circle-question" style="color:#9ca3af;"></i></span><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></div>
+                <div class="toggle-row"><span>Giới hạn số lượng ảnh được chọn</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+
                 <div class="modal-footer">
                     <button type="button" class="btn-cancel" onclick="closeModal('create-modal')">Hủy bỏ</button>
-                    <button type="submit" class="btn-submit" id="btn-submit-album">Tạo Album</button>
+                    <button type="submit" class="btn-submit" id="btn-submit-album">Tạo ngay</button>
                 </div>
             </form>
         </div>
@@ -140,11 +198,11 @@
                     allAlbums = data.albums;
                     renderDashboard(allAlbums);
                 } else {
-                    document.getElementById('loading-dash').innerText = "Không thể tải danh sách album: " + data.message;
+                    document.getElementById('loading-dash').innerText = "Không thể tải danh sách: " + data.message;
                 }
             })
             .catch(err => {
-                document.getElementById('loading-dash').innerText = "Lỗi kết nối máy chủ Google: " + err;
+                document.getElementById('loading-dash').innerText = "Lỗi kết nối: " + err;
             });
         };
 
@@ -166,7 +224,7 @@
                                 <div class="aic-client">Khách hàng: ${alb.clientName}</div>
                             </div>
                             <div class="aic-footer">
-                                <span>${new Date(alb.createdAt).toLocaleDateString('vi-VN')}</span>
+                                <span>Ngày tạo: ${new Date(alb.createdAt).toLocaleDateString('vi-VN')}</span>
                                 <a href="gallery.html?id=${alb.slug}" class="aic-link" target="_blank">Mở album <i class="fa-solid fa-arrow-right"></i></a>
                             </div>
                         </div>
@@ -213,8 +271,8 @@
                 alert("Tạo album thành công!");
                 location.reload();
             }).catch(err => {
-                alert("Lỗi khi tạo album: " + err);
-                btn.innerText = "Tạo Album";
+                alert("Lỗi: " + err);
+                btn.innerText = "Tạo ngay";
                 btn.disabled = false;
             });
         }
